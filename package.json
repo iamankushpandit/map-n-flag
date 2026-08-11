@@ -1,0 +1,16 @@
+{
+  "name": "country-assets-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Offline pipeline that converts country flag SVGs and map silhouettes into LVGL C++ image arrays for ESP32. Build-time only; nothing here runs on the device.",
+  "scripts": {
+    "fetch": "python tools/fetch_sources.py",
+    "build": "python tools/build.py",
+    "report": "python tools/build.py --report",
+    "verify": "python tools/verify.py"
+  },
+  "dependencies": {
+    "sharp": "^0.35.3"
+  },
+  "license": "MIT"
+}

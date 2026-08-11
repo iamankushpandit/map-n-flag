@@ -1,0 +1,7 @@
+# Build-time only. None of this runs on the ESP32.
+pillow>=10.0
+numpy>=1.24
+
+# Only needed if you re-run tools/gen_country_table.py to refresh country
+# names. tools/build.py reads the generated countries_data.py instead.
+pycountry>=23.12

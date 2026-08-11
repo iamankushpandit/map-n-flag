@@ -1,0 +1,17 @@
+# Upstream artwork -- re-fetch with: python tools/fetch_sources.py
+vendor/
+
+# Intermediate rasterised frames and verification output
+build/
+
+node_modules/
+__pycache__/
+*.pyc
+
+# Local tooling config
+.claude/
+
+# Editor / OS
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,58 @@
+{
+  "name": "map-n-flag",
+  "version": "1.0.0",
+  "description": "ISO 3166-1 country flags and map silhouettes baked into flash as C++ arrays for ESP32. 4-bit indexed images, zero RAM cost, no runtime SVG parsing and no SD card. Works with TFT_eSPI/LovyanGFX directly or with LVGL v8/v9 via an optional adapter.",
+  "keywords": [
+    "flags",
+    "maps",
+    "countries",
+    "iso3166",
+    "lvgl",
+    "tft",
+    "esp32",
+    "graphics",
+    "quiz"
+  ],
+  "authors": [
+    {
+      "name": "Ankush Pandit",
+      "url": "https://github.com/iamankushpandit",
+      "maintainer": true
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamankushpandit/map-n-flag.git"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/iamankushpandit/map-n-flag",
+  "frameworks": "*",
+  "platforms": "*",
+  "headers": [
+    "map_n_flag.h",
+    "map_n_flag_lvgl.h"
+  ],
+  "build": {
+    "srcDir": "src",
+    "includeDir": "src",
+    "libArchive": false
+  },
+  "export": {
+    "include": [
+      "src/*",
+      "examples/*",
+      "README.md",
+      "LICENSE",
+      "NOTICE.md",
+      "library.json"
+    ],
+    "exclude": [
+      "tools",
+      "docs",
+      "vendor",
+      "node_modules",
+      "build",
+      ".github"
+    ]
+  }
+}
