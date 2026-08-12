@@ -346,7 +346,7 @@ def main() -> None:
         f_img = load_flag(code, raw_dir)
         if f_img is not None:
             flag_items.append((code, f_img, pack_i4(f_img)))
-        m_img = load_map(code)
+        m_img = load_map(code) if getattr(config, "GENERATE_MAPS", True) else None
         if m_img is not None:
             map_items.append((code, m_img, pack_i4(m_img)))
         else:
@@ -387,7 +387,9 @@ def main() -> None:
     (OUT_DIR / "map_n_flag.cpp").write_text(IMPL_SOURCE, encoding="utf-8")
 
     flag_syms = dict(emit_data_files("flag", flag_items))
-    map_syms = dict(emit_data_files("map", map_items))
+    # Skip the map translation units entirely when there is nothing to put in
+    # them, rather than emitting four empty files.
+    map_syms = dict(emit_data_files("map", map_items)) if map_items else {}
     emit_tables(rows, flag_syms, map_syms)
 
     print(f"wrote {OUT_DIR}")

@@ -206,395 +206,204 @@ extern const mnf_img_t mnf_flag_ye;
 extern const mnf_img_t mnf_flag_za;
 extern const mnf_img_t mnf_flag_zm;
 extern const mnf_img_t mnf_flag_zw;
-extern const mnf_img_t mnf_map_ad;
-extern const mnf_img_t mnf_map_ae;
-extern const mnf_img_t mnf_map_af;
-extern const mnf_img_t mnf_map_ag;
-extern const mnf_img_t mnf_map_al;
-extern const mnf_img_t mnf_map_am;
-extern const mnf_img_t mnf_map_ao;
-extern const mnf_img_t mnf_map_ar;
-extern const mnf_img_t mnf_map_at;
-extern const mnf_img_t mnf_map_au;
-extern const mnf_img_t mnf_map_az;
-extern const mnf_img_t mnf_map_ba;
-extern const mnf_img_t mnf_map_bb;
-extern const mnf_img_t mnf_map_bd;
-extern const mnf_img_t mnf_map_be;
-extern const mnf_img_t mnf_map_bf;
-extern const mnf_img_t mnf_map_bg;
-extern const mnf_img_t mnf_map_bh;
-extern const mnf_img_t mnf_map_bi;
-extern const mnf_img_t mnf_map_bj;
-extern const mnf_img_t mnf_map_bn;
-extern const mnf_img_t mnf_map_bo;
-extern const mnf_img_t mnf_map_br;
-extern const mnf_img_t mnf_map_bs;
-extern const mnf_img_t mnf_map_bt;
-extern const mnf_img_t mnf_map_bw;
-extern const mnf_img_t mnf_map_by;
-extern const mnf_img_t mnf_map_bz;
-extern const mnf_img_t mnf_map_ca;
-extern const mnf_img_t mnf_map_cd;
-extern const mnf_img_t mnf_map_cf;
-extern const mnf_img_t mnf_map_cg;
-extern const mnf_img_t mnf_map_ch;
-extern const mnf_img_t mnf_map_ci;
-extern const mnf_img_t mnf_map_cl;
-extern const mnf_img_t mnf_map_cm;
-extern const mnf_img_t mnf_map_cn;
-extern const mnf_img_t mnf_map_co;
-extern const mnf_img_t mnf_map_cr;
-extern const mnf_img_t mnf_map_cu;
-extern const mnf_img_t mnf_map_cv;
-extern const mnf_img_t mnf_map_cy;
-extern const mnf_img_t mnf_map_cz;
-extern const mnf_img_t mnf_map_de;
-extern const mnf_img_t mnf_map_dj;
-extern const mnf_img_t mnf_map_dk;
-extern const mnf_img_t mnf_map_dm;
-extern const mnf_img_t mnf_map_do;
-extern const mnf_img_t mnf_map_dz;
-extern const mnf_img_t mnf_map_ec;
-extern const mnf_img_t mnf_map_ee;
-extern const mnf_img_t mnf_map_eg;
-extern const mnf_img_t mnf_map_er;
-extern const mnf_img_t mnf_map_es;
-extern const mnf_img_t mnf_map_et;
-extern const mnf_img_t mnf_map_fi;
-extern const mnf_img_t mnf_map_fj;
-extern const mnf_img_t mnf_map_fr;
-extern const mnf_img_t mnf_map_ga;
-extern const mnf_img_t mnf_map_gb;
-extern const mnf_img_t mnf_map_gd;
-extern const mnf_img_t mnf_map_ge;
-extern const mnf_img_t mnf_map_gh;
-extern const mnf_img_t mnf_map_gm;
-extern const mnf_img_t mnf_map_gn;
-extern const mnf_img_t mnf_map_gq;
-extern const mnf_img_t mnf_map_gr;
-extern const mnf_img_t mnf_map_gt;
-extern const mnf_img_t mnf_map_gw;
-extern const mnf_img_t mnf_map_gy;
-extern const mnf_img_t mnf_map_hn;
-extern const mnf_img_t mnf_map_hr;
-extern const mnf_img_t mnf_map_ht;
-extern const mnf_img_t mnf_map_hu;
-extern const mnf_img_t mnf_map_id;
-extern const mnf_img_t mnf_map_ie;
-extern const mnf_img_t mnf_map_il;
-extern const mnf_img_t mnf_map_in;
-extern const mnf_img_t mnf_map_iq;
-extern const mnf_img_t mnf_map_ir;
-extern const mnf_img_t mnf_map_is;
-extern const mnf_img_t mnf_map_it;
-extern const mnf_img_t mnf_map_jm;
-extern const mnf_img_t mnf_map_jo;
-extern const mnf_img_t mnf_map_jp;
-extern const mnf_img_t mnf_map_ke;
-extern const mnf_img_t mnf_map_kg;
-extern const mnf_img_t mnf_map_kh;
-extern const mnf_img_t mnf_map_ki;
-extern const mnf_img_t mnf_map_km;
-extern const mnf_img_t mnf_map_kn;
-extern const mnf_img_t mnf_map_kp;
-extern const mnf_img_t mnf_map_kr;
-extern const mnf_img_t mnf_map_kw;
-extern const mnf_img_t mnf_map_kz;
-extern const mnf_img_t mnf_map_la;
-extern const mnf_img_t mnf_map_lb;
-extern const mnf_img_t mnf_map_lc;
-extern const mnf_img_t mnf_map_li;
-extern const mnf_img_t mnf_map_lk;
-extern const mnf_img_t mnf_map_lr;
-extern const mnf_img_t mnf_map_ls;
-extern const mnf_img_t mnf_map_lt;
-extern const mnf_img_t mnf_map_lu;
-extern const mnf_img_t mnf_map_lv;
-extern const mnf_img_t mnf_map_ly;
-extern const mnf_img_t mnf_map_ma;
-extern const mnf_img_t mnf_map_mc;
-extern const mnf_img_t mnf_map_md;
-extern const mnf_img_t mnf_map_me;
-extern const mnf_img_t mnf_map_mg;
-extern const mnf_img_t mnf_map_mk;
-extern const mnf_img_t mnf_map_ml;
-extern const mnf_img_t mnf_map_mm;
-extern const mnf_img_t mnf_map_mn;
-extern const mnf_img_t mnf_map_mr;
-extern const mnf_img_t mnf_map_mt;
-extern const mnf_img_t mnf_map_mu;
-extern const mnf_img_t mnf_map_mv;
-extern const mnf_img_t mnf_map_mw;
-extern const mnf_img_t mnf_map_mx;
-extern const mnf_img_t mnf_map_my;
-extern const mnf_img_t mnf_map_mz;
-extern const mnf_img_t mnf_map_na;
-extern const mnf_img_t mnf_map_ne;
-extern const mnf_img_t mnf_map_ng;
-extern const mnf_img_t mnf_map_ni;
-extern const mnf_img_t mnf_map_nl;
-extern const mnf_img_t mnf_map_no;
-extern const mnf_img_t mnf_map_np;
-extern const mnf_img_t mnf_map_nr;
-extern const mnf_img_t mnf_map_nz;
-extern const mnf_img_t mnf_map_om;
-extern const mnf_img_t mnf_map_pa;
-extern const mnf_img_t mnf_map_pe;
-extern const mnf_img_t mnf_map_pg;
-extern const mnf_img_t mnf_map_ph;
-extern const mnf_img_t mnf_map_pk;
-extern const mnf_img_t mnf_map_pl;
-extern const mnf_img_t mnf_map_pt;
-extern const mnf_img_t mnf_map_pw;
-extern const mnf_img_t mnf_map_py;
-extern const mnf_img_t mnf_map_qa;
-extern const mnf_img_t mnf_map_ro;
-extern const mnf_img_t mnf_map_rs;
-extern const mnf_img_t mnf_map_ru;
-extern const mnf_img_t mnf_map_rw;
-extern const mnf_img_t mnf_map_sa;
-extern const mnf_img_t mnf_map_sb;
-extern const mnf_img_t mnf_map_sc;
-extern const mnf_img_t mnf_map_sd;
-extern const mnf_img_t mnf_map_se;
-extern const mnf_img_t mnf_map_sg;
-extern const mnf_img_t mnf_map_si;
-extern const mnf_img_t mnf_map_sk;
-extern const mnf_img_t mnf_map_sl;
-extern const mnf_img_t mnf_map_sm;
-extern const mnf_img_t mnf_map_sn;
-extern const mnf_img_t mnf_map_so;
-extern const mnf_img_t mnf_map_sr;
-extern const mnf_img_t mnf_map_ss;
-extern const mnf_img_t mnf_map_st;
-extern const mnf_img_t mnf_map_sv;
-extern const mnf_img_t mnf_map_sy;
-extern const mnf_img_t mnf_map_sz;
-extern const mnf_img_t mnf_map_td;
-extern const mnf_img_t mnf_map_tg;
-extern const mnf_img_t mnf_map_th;
-extern const mnf_img_t mnf_map_tj;
-extern const mnf_img_t mnf_map_tl;
-extern const mnf_img_t mnf_map_tm;
-extern const mnf_img_t mnf_map_tn;
-extern const mnf_img_t mnf_map_to;
-extern const mnf_img_t mnf_map_tr;
-extern const mnf_img_t mnf_map_tt;
-extern const mnf_img_t mnf_map_tz;
-extern const mnf_img_t mnf_map_ua;
-extern const mnf_img_t mnf_map_ug;
-extern const mnf_img_t mnf_map_us;
-extern const mnf_img_t mnf_map_uy;
-extern const mnf_img_t mnf_map_uz;
-extern const mnf_img_t mnf_map_va;
-extern const mnf_img_t mnf_map_vc;
-extern const mnf_img_t mnf_map_ve;
-extern const mnf_img_t mnf_map_vn;
-extern const mnf_img_t mnf_map_vu;
-extern const mnf_img_t mnf_map_ws;
-extern const mnf_img_t mnf_map_ye;
-extern const mnf_img_t mnf_map_za;
-extern const mnf_img_t mnf_map_zm;
-extern const mnf_img_t mnf_map_zw;
 
 /* Sorted by ISO code so lookup can binary-search. */
 extern const mnf_country_t mnf_country_table[] = {
-    { "AD", "Andorra", &mnf_flag_ad, &mnf_map_ad },
-    { "AE", "United Arab Emirates", &mnf_flag_ae, &mnf_map_ae },
-    { "AF", "Afghanistan", &mnf_flag_af, &mnf_map_af },
-    { "AG", "Antigua and Barbuda", &mnf_flag_ag, &mnf_map_ag },
-    { "AL", "Albania", &mnf_flag_al, &mnf_map_al },
-    { "AM", "Armenia", &mnf_flag_am, &mnf_map_am },
-    { "AO", "Angola", &mnf_flag_ao, &mnf_map_ao },
-    { "AR", "Argentina", &mnf_flag_ar, &mnf_map_ar },
-    { "AT", "Austria", &mnf_flag_at, &mnf_map_at },
-    { "AU", "Australia", &mnf_flag_au, &mnf_map_au },
-    { "AZ", "Azerbaijan", &mnf_flag_az, &mnf_map_az },
-    { "BA", "Bosnia and Herzegovina", &mnf_flag_ba, &mnf_map_ba },
-    { "BB", "Barbados", &mnf_flag_bb, &mnf_map_bb },
-    { "BD", "Bangladesh", &mnf_flag_bd, &mnf_map_bd },
-    { "BE", "Belgium", &mnf_flag_be, &mnf_map_be },
-    { "BF", "Burkina Faso", &mnf_flag_bf, &mnf_map_bf },
-    { "BG", "Bulgaria", &mnf_flag_bg, &mnf_map_bg },
-    { "BH", "Bahrain", &mnf_flag_bh, &mnf_map_bh },
-    { "BI", "Burundi", &mnf_flag_bi, &mnf_map_bi },
-    { "BJ", "Benin", &mnf_flag_bj, &mnf_map_bj },
-    { "BN", "Brunei", &mnf_flag_bn, &mnf_map_bn },
-    { "BO", "Bolivia", &mnf_flag_bo, &mnf_map_bo },
-    { "BR", "Brazil", &mnf_flag_br, &mnf_map_br },
-    { "BS", "Bahamas", &mnf_flag_bs, &mnf_map_bs },
-    { "BT", "Bhutan", &mnf_flag_bt, &mnf_map_bt },
-    { "BW", "Botswana", &mnf_flag_bw, &mnf_map_bw },
-    { "BY", "Belarus", &mnf_flag_by, &mnf_map_by },
-    { "BZ", "Belize", &mnf_flag_bz, &mnf_map_bz },
-    { "CA", "Canada", &mnf_flag_ca, &mnf_map_ca },
-    { "CD", "DR Congo", &mnf_flag_cd, &mnf_map_cd },
-    { "CF", "Central African Republic", &mnf_flag_cf, &mnf_map_cf },
-    { "CG", "Congo", &mnf_flag_cg, &mnf_map_cg },
-    { "CH", "Switzerland", &mnf_flag_ch, &mnf_map_ch },
-    { "CI", "Ivory Coast", &mnf_flag_ci, &mnf_map_ci },
-    { "CL", "Chile", &mnf_flag_cl, &mnf_map_cl },
-    { "CM", "Cameroon", &mnf_flag_cm, &mnf_map_cm },
-    { "CN", "China", &mnf_flag_cn, &mnf_map_cn },
-    { "CO", "Colombia", &mnf_flag_co, &mnf_map_co },
-    { "CR", "Costa Rica", &mnf_flag_cr, &mnf_map_cr },
-    { "CU", "Cuba", &mnf_flag_cu, &mnf_map_cu },
-    { "CV", "Cape Verde", &mnf_flag_cv, &mnf_map_cv },
-    { "CY", "Cyprus", &mnf_flag_cy, &mnf_map_cy },
-    { "CZ", "Czechia", &mnf_flag_cz, &mnf_map_cz },
-    { "DE", "Germany", &mnf_flag_de, &mnf_map_de },
-    { "DJ", "Djibouti", &mnf_flag_dj, &mnf_map_dj },
-    { "DK", "Denmark", &mnf_flag_dk, &mnf_map_dk },
-    { "DM", "Dominica", &mnf_flag_dm, &mnf_map_dm },
-    { "DO", "Dominican Republic", &mnf_flag_do, &mnf_map_do },
-    { "DZ", "Algeria", &mnf_flag_dz, &mnf_map_dz },
-    { "EC", "Ecuador", &mnf_flag_ec, &mnf_map_ec },
-    { "EE", "Estonia", &mnf_flag_ee, &mnf_map_ee },
-    { "EG", "Egypt", &mnf_flag_eg, &mnf_map_eg },
-    { "ER", "Eritrea", &mnf_flag_er, &mnf_map_er },
-    { "ES", "Spain", &mnf_flag_es, &mnf_map_es },
-    { "ET", "Ethiopia", &mnf_flag_et, &mnf_map_et },
-    { "FI", "Finland", &mnf_flag_fi, &mnf_map_fi },
-    { "FJ", "Fiji", &mnf_flag_fj, &mnf_map_fj },
+    { "AD", "Andorra", &mnf_flag_ad, NULL },
+    { "AE", "United Arab Emirates", &mnf_flag_ae, NULL },
+    { "AF", "Afghanistan", &mnf_flag_af, NULL },
+    { "AG", "Antigua and Barbuda", &mnf_flag_ag, NULL },
+    { "AL", "Albania", &mnf_flag_al, NULL },
+    { "AM", "Armenia", &mnf_flag_am, NULL },
+    { "AO", "Angola", &mnf_flag_ao, NULL },
+    { "AR", "Argentina", &mnf_flag_ar, NULL },
+    { "AT", "Austria", &mnf_flag_at, NULL },
+    { "AU", "Australia", &mnf_flag_au, NULL },
+    { "AZ", "Azerbaijan", &mnf_flag_az, NULL },
+    { "BA", "Bosnia and Herzegovina", &mnf_flag_ba, NULL },
+    { "BB", "Barbados", &mnf_flag_bb, NULL },
+    { "BD", "Bangladesh", &mnf_flag_bd, NULL },
+    { "BE", "Belgium", &mnf_flag_be, NULL },
+    { "BF", "Burkina Faso", &mnf_flag_bf, NULL },
+    { "BG", "Bulgaria", &mnf_flag_bg, NULL },
+    { "BH", "Bahrain", &mnf_flag_bh, NULL },
+    { "BI", "Burundi", &mnf_flag_bi, NULL },
+    { "BJ", "Benin", &mnf_flag_bj, NULL },
+    { "BN", "Brunei", &mnf_flag_bn, NULL },
+    { "BO", "Bolivia", &mnf_flag_bo, NULL },
+    { "BR", "Brazil", &mnf_flag_br, NULL },
+    { "BS", "Bahamas", &mnf_flag_bs, NULL },
+    { "BT", "Bhutan", &mnf_flag_bt, NULL },
+    { "BW", "Botswana", &mnf_flag_bw, NULL },
+    { "BY", "Belarus", &mnf_flag_by, NULL },
+    { "BZ", "Belize", &mnf_flag_bz, NULL },
+    { "CA", "Canada", &mnf_flag_ca, NULL },
+    { "CD", "DR Congo", &mnf_flag_cd, NULL },
+    { "CF", "Central African Republic", &mnf_flag_cf, NULL },
+    { "CG", "Congo", &mnf_flag_cg, NULL },
+    { "CH", "Switzerland", &mnf_flag_ch, NULL },
+    { "CI", "Ivory Coast", &mnf_flag_ci, NULL },
+    { "CL", "Chile", &mnf_flag_cl, NULL },
+    { "CM", "Cameroon", &mnf_flag_cm, NULL },
+    { "CN", "China", &mnf_flag_cn, NULL },
+    { "CO", "Colombia", &mnf_flag_co, NULL },
+    { "CR", "Costa Rica", &mnf_flag_cr, NULL },
+    { "CU", "Cuba", &mnf_flag_cu, NULL },
+    { "CV", "Cape Verde", &mnf_flag_cv, NULL },
+    { "CY", "Cyprus", &mnf_flag_cy, NULL },
+    { "CZ", "Czechia", &mnf_flag_cz, NULL },
+    { "DE", "Germany", &mnf_flag_de, NULL },
+    { "DJ", "Djibouti", &mnf_flag_dj, NULL },
+    { "DK", "Denmark", &mnf_flag_dk, NULL },
+    { "DM", "Dominica", &mnf_flag_dm, NULL },
+    { "DO", "Dominican Republic", &mnf_flag_do, NULL },
+    { "DZ", "Algeria", &mnf_flag_dz, NULL },
+    { "EC", "Ecuador", &mnf_flag_ec, NULL },
+    { "EE", "Estonia", &mnf_flag_ee, NULL },
+    { "EG", "Egypt", &mnf_flag_eg, NULL },
+    { "ER", "Eritrea", &mnf_flag_er, NULL },
+    { "ES", "Spain", &mnf_flag_es, NULL },
+    { "ET", "Ethiopia", &mnf_flag_et, NULL },
+    { "FI", "Finland", &mnf_flag_fi, NULL },
+    { "FJ", "Fiji", &mnf_flag_fj, NULL },
     { "FM", "Micronesia", &mnf_flag_fm, NULL },
-    { "FR", "France", &mnf_flag_fr, &mnf_map_fr },
-    { "GA", "Gabon", &mnf_flag_ga, &mnf_map_ga },
-    { "GB", "United Kingdom", &mnf_flag_gb, &mnf_map_gb },
-    { "GD", "Grenada", &mnf_flag_gd, &mnf_map_gd },
-    { "GE", "Georgia", &mnf_flag_ge, &mnf_map_ge },
-    { "GH", "Ghana", &mnf_flag_gh, &mnf_map_gh },
-    { "GM", "Gambia", &mnf_flag_gm, &mnf_map_gm },
-    { "GN", "Guinea", &mnf_flag_gn, &mnf_map_gn },
-    { "GQ", "Equatorial Guinea", &mnf_flag_gq, &mnf_map_gq },
-    { "GR", "Greece", &mnf_flag_gr, &mnf_map_gr },
-    { "GT", "Guatemala", &mnf_flag_gt, &mnf_map_gt },
-    { "GW", "Guinea-Bissau", &mnf_flag_gw, &mnf_map_gw },
-    { "GY", "Guyana", &mnf_flag_gy, &mnf_map_gy },
-    { "HN", "Honduras", &mnf_flag_hn, &mnf_map_hn },
-    { "HR", "Croatia", &mnf_flag_hr, &mnf_map_hr },
-    { "HT", "Haiti", &mnf_flag_ht, &mnf_map_ht },
-    { "HU", "Hungary", &mnf_flag_hu, &mnf_map_hu },
-    { "ID", "Indonesia", &mnf_flag_id, &mnf_map_id },
-    { "IE", "Ireland", &mnf_flag_ie, &mnf_map_ie },
-    { "IL", "Israel", &mnf_flag_il, &mnf_map_il },
-    { "IN", "India", &mnf_flag_in, &mnf_map_in },
-    { "IQ", "Iraq", &mnf_flag_iq, &mnf_map_iq },
-    { "IR", "Iran", &mnf_flag_ir, &mnf_map_ir },
-    { "IS", "Iceland", &mnf_flag_is, &mnf_map_is },
-    { "IT", "Italy", &mnf_flag_it, &mnf_map_it },
-    { "JM", "Jamaica", &mnf_flag_jm, &mnf_map_jm },
-    { "JO", "Jordan", &mnf_flag_jo, &mnf_map_jo },
-    { "JP", "Japan", &mnf_flag_jp, &mnf_map_jp },
-    { "KE", "Kenya", &mnf_flag_ke, &mnf_map_ke },
-    { "KG", "Kyrgyzstan", &mnf_flag_kg, &mnf_map_kg },
-    { "KH", "Cambodia", &mnf_flag_kh, &mnf_map_kh },
-    { "KI", "Kiribati", &mnf_flag_ki, &mnf_map_ki },
-    { "KM", "Comoros", &mnf_flag_km, &mnf_map_km },
-    { "KN", "Saint Kitts and Nevis", &mnf_flag_kn, &mnf_map_kn },
-    { "KP", "North Korea", &mnf_flag_kp, &mnf_map_kp },
-    { "KR", "South Korea", &mnf_flag_kr, &mnf_map_kr },
-    { "KW", "Kuwait", &mnf_flag_kw, &mnf_map_kw },
-    { "KZ", "Kazakhstan", &mnf_flag_kz, &mnf_map_kz },
-    { "LA", "Laos", &mnf_flag_la, &mnf_map_la },
-    { "LB", "Lebanon", &mnf_flag_lb, &mnf_map_lb },
-    { "LC", "Saint Lucia", &mnf_flag_lc, &mnf_map_lc },
-    { "LI", "Liechtenstein", &mnf_flag_li, &mnf_map_li },
-    { "LK", "Sri Lanka", &mnf_flag_lk, &mnf_map_lk },
-    { "LR", "Liberia", &mnf_flag_lr, &mnf_map_lr },
-    { "LS", "Lesotho", &mnf_flag_ls, &mnf_map_ls },
-    { "LT", "Lithuania", &mnf_flag_lt, &mnf_map_lt },
-    { "LU", "Luxembourg", &mnf_flag_lu, &mnf_map_lu },
-    { "LV", "Latvia", &mnf_flag_lv, &mnf_map_lv },
-    { "LY", "Libya", &mnf_flag_ly, &mnf_map_ly },
-    { "MA", "Morocco", &mnf_flag_ma, &mnf_map_ma },
-    { "MC", "Monaco", &mnf_flag_mc, &mnf_map_mc },
-    { "MD", "Moldova", &mnf_flag_md, &mnf_map_md },
-    { "ME", "Montenegro", &mnf_flag_me, &mnf_map_me },
-    { "MG", "Madagascar", &mnf_flag_mg, &mnf_map_mg },
+    { "FR", "France", &mnf_flag_fr, NULL },
+    { "GA", "Gabon", &mnf_flag_ga, NULL },
+    { "GB", "United Kingdom", &mnf_flag_gb, NULL },
+    { "GD", "Grenada", &mnf_flag_gd, NULL },
+    { "GE", "Georgia", &mnf_flag_ge, NULL },
+    { "GH", "Ghana", &mnf_flag_gh, NULL },
+    { "GM", "Gambia", &mnf_flag_gm, NULL },
+    { "GN", "Guinea", &mnf_flag_gn, NULL },
+    { "GQ", "Equatorial Guinea", &mnf_flag_gq, NULL },
+    { "GR", "Greece", &mnf_flag_gr, NULL },
+    { "GT", "Guatemala", &mnf_flag_gt, NULL },
+    { "GW", "Guinea-Bissau", &mnf_flag_gw, NULL },
+    { "GY", "Guyana", &mnf_flag_gy, NULL },
+    { "HN", "Honduras", &mnf_flag_hn, NULL },
+    { "HR", "Croatia", &mnf_flag_hr, NULL },
+    { "HT", "Haiti", &mnf_flag_ht, NULL },
+    { "HU", "Hungary", &mnf_flag_hu, NULL },
+    { "ID", "Indonesia", &mnf_flag_id, NULL },
+    { "IE", "Ireland", &mnf_flag_ie, NULL },
+    { "IL", "Israel", &mnf_flag_il, NULL },
+    { "IN", "India", &mnf_flag_in, NULL },
+    { "IQ", "Iraq", &mnf_flag_iq, NULL },
+    { "IR", "Iran", &mnf_flag_ir, NULL },
+    { "IS", "Iceland", &mnf_flag_is, NULL },
+    { "IT", "Italy", &mnf_flag_it, NULL },
+    { "JM", "Jamaica", &mnf_flag_jm, NULL },
+    { "JO", "Jordan", &mnf_flag_jo, NULL },
+    { "JP", "Japan", &mnf_flag_jp, NULL },
+    { "KE", "Kenya", &mnf_flag_ke, NULL },
+    { "KG", "Kyrgyzstan", &mnf_flag_kg, NULL },
+    { "KH", "Cambodia", &mnf_flag_kh, NULL },
+    { "KI", "Kiribati", &mnf_flag_ki, NULL },
+    { "KM", "Comoros", &mnf_flag_km, NULL },
+    { "KN", "Saint Kitts and Nevis", &mnf_flag_kn, NULL },
+    { "KP", "North Korea", &mnf_flag_kp, NULL },
+    { "KR", "South Korea", &mnf_flag_kr, NULL },
+    { "KW", "Kuwait", &mnf_flag_kw, NULL },
+    { "KZ", "Kazakhstan", &mnf_flag_kz, NULL },
+    { "LA", "Laos", &mnf_flag_la, NULL },
+    { "LB", "Lebanon", &mnf_flag_lb, NULL },
+    { "LC", "Saint Lucia", &mnf_flag_lc, NULL },
+    { "LI", "Liechtenstein", &mnf_flag_li, NULL },
+    { "LK", "Sri Lanka", &mnf_flag_lk, NULL },
+    { "LR", "Liberia", &mnf_flag_lr, NULL },
+    { "LS", "Lesotho", &mnf_flag_ls, NULL },
+    { "LT", "Lithuania", &mnf_flag_lt, NULL },
+    { "LU", "Luxembourg", &mnf_flag_lu, NULL },
+    { "LV", "Latvia", &mnf_flag_lv, NULL },
+    { "LY", "Libya", &mnf_flag_ly, NULL },
+    { "MA", "Morocco", &mnf_flag_ma, NULL },
+    { "MC", "Monaco", &mnf_flag_mc, NULL },
+    { "MD", "Moldova", &mnf_flag_md, NULL },
+    { "ME", "Montenegro", &mnf_flag_me, NULL },
+    { "MG", "Madagascar", &mnf_flag_mg, NULL },
     { "MH", "Marshall Islands", &mnf_flag_mh, NULL },
-    { "MK", "North Macedonia", &mnf_flag_mk, &mnf_map_mk },
-    { "ML", "Mali", &mnf_flag_ml, &mnf_map_ml },
-    { "MM", "Myanmar", &mnf_flag_mm, &mnf_map_mm },
-    { "MN", "Mongolia", &mnf_flag_mn, &mnf_map_mn },
-    { "MR", "Mauritania", &mnf_flag_mr, &mnf_map_mr },
-    { "MT", "Malta", &mnf_flag_mt, &mnf_map_mt },
-    { "MU", "Mauritius", &mnf_flag_mu, &mnf_map_mu },
-    { "MV", "Maldives", &mnf_flag_mv, &mnf_map_mv },
-    { "MW", "Malawi", &mnf_flag_mw, &mnf_map_mw },
-    { "MX", "Mexico", &mnf_flag_mx, &mnf_map_mx },
-    { "MY", "Malaysia", &mnf_flag_my, &mnf_map_my },
-    { "MZ", "Mozambique", &mnf_flag_mz, &mnf_map_mz },
-    { "NA", "Namibia", &mnf_flag_na, &mnf_map_na },
-    { "NE", "Niger", &mnf_flag_ne, &mnf_map_ne },
-    { "NG", "Nigeria", &mnf_flag_ng, &mnf_map_ng },
-    { "NI", "Nicaragua", &mnf_flag_ni, &mnf_map_ni },
-    { "NL", "Netherlands", &mnf_flag_nl, &mnf_map_nl },
-    { "NO", "Norway", &mnf_flag_no, &mnf_map_no },
-    { "NP", "Nepal", &mnf_flag_np, &mnf_map_np },
-    { "NR", "Nauru", &mnf_flag_nr, &mnf_map_nr },
-    { "NZ", "New Zealand", &mnf_flag_nz, &mnf_map_nz },
-    { "OM", "Oman", &mnf_flag_om, &mnf_map_om },
-    { "PA", "Panama", &mnf_flag_pa, &mnf_map_pa },
-    { "PE", "Peru", &mnf_flag_pe, &mnf_map_pe },
-    { "PG", "Papua New Guinea", &mnf_flag_pg, &mnf_map_pg },
-    { "PH", "Philippines", &mnf_flag_ph, &mnf_map_ph },
-    { "PK", "Pakistan", &mnf_flag_pk, &mnf_map_pk },
-    { "PL", "Poland", &mnf_flag_pl, &mnf_map_pl },
+    { "MK", "North Macedonia", &mnf_flag_mk, NULL },
+    { "ML", "Mali", &mnf_flag_ml, NULL },
+    { "MM", "Myanmar", &mnf_flag_mm, NULL },
+    { "MN", "Mongolia", &mnf_flag_mn, NULL },
+    { "MR", "Mauritania", &mnf_flag_mr, NULL },
+    { "MT", "Malta", &mnf_flag_mt, NULL },
+    { "MU", "Mauritius", &mnf_flag_mu, NULL },
+    { "MV", "Maldives", &mnf_flag_mv, NULL },
+    { "MW", "Malawi", &mnf_flag_mw, NULL },
+    { "MX", "Mexico", &mnf_flag_mx, NULL },
+    { "MY", "Malaysia", &mnf_flag_my, NULL },
+    { "MZ", "Mozambique", &mnf_flag_mz, NULL },
+    { "NA", "Namibia", &mnf_flag_na, NULL },
+    { "NE", "Niger", &mnf_flag_ne, NULL },
+    { "NG", "Nigeria", &mnf_flag_ng, NULL },
+    { "NI", "Nicaragua", &mnf_flag_ni, NULL },
+    { "NL", "Netherlands", &mnf_flag_nl, NULL },
+    { "NO", "Norway", &mnf_flag_no, NULL },
+    { "NP", "Nepal", &mnf_flag_np, NULL },
+    { "NR", "Nauru", &mnf_flag_nr, NULL },
+    { "NZ", "New Zealand", &mnf_flag_nz, NULL },
+    { "OM", "Oman", &mnf_flag_om, NULL },
+    { "PA", "Panama", &mnf_flag_pa, NULL },
+    { "PE", "Peru", &mnf_flag_pe, NULL },
+    { "PG", "Papua New Guinea", &mnf_flag_pg, NULL },
+    { "PH", "Philippines", &mnf_flag_ph, NULL },
+    { "PK", "Pakistan", &mnf_flag_pk, NULL },
+    { "PL", "Poland", &mnf_flag_pl, NULL },
     { "PS", "Palestine", &mnf_flag_ps, NULL },
-    { "PT", "Portugal", &mnf_flag_pt, &mnf_map_pt },
-    { "PW", "Palau", &mnf_flag_pw, &mnf_map_pw },
-    { "PY", "Paraguay", &mnf_flag_py, &mnf_map_py },
-    { "QA", "Qatar", &mnf_flag_qa, &mnf_map_qa },
-    { "RO", "Romania", &mnf_flag_ro, &mnf_map_ro },
-    { "RS", "Serbia", &mnf_flag_rs, &mnf_map_rs },
-    { "RU", "Russia", &mnf_flag_ru, &mnf_map_ru },
-    { "RW", "Rwanda", &mnf_flag_rw, &mnf_map_rw },
-    { "SA", "Saudi Arabia", &mnf_flag_sa, &mnf_map_sa },
-    { "SB", "Solomon Islands", &mnf_flag_sb, &mnf_map_sb },
-    { "SC", "Seychelles", &mnf_flag_sc, &mnf_map_sc },
-    { "SD", "Sudan", &mnf_flag_sd, &mnf_map_sd },
-    { "SE", "Sweden", &mnf_flag_se, &mnf_map_se },
-    { "SG", "Singapore", &mnf_flag_sg, &mnf_map_sg },
-    { "SI", "Slovenia", &mnf_flag_si, &mnf_map_si },
-    { "SK", "Slovakia", &mnf_flag_sk, &mnf_map_sk },
-    { "SL", "Sierra Leone", &mnf_flag_sl, &mnf_map_sl },
-    { "SM", "San Marino", &mnf_flag_sm, &mnf_map_sm },
-    { "SN", "Senegal", &mnf_flag_sn, &mnf_map_sn },
-    { "SO", "Somalia", &mnf_flag_so, &mnf_map_so },
-    { "SR", "Suriname", &mnf_flag_sr, &mnf_map_sr },
-    { "SS", "South Sudan", &mnf_flag_ss, &mnf_map_ss },
-    { "ST", "Sao Tome and Principe", &mnf_flag_st, &mnf_map_st },
-    { "SV", "El Salvador", &mnf_flag_sv, &mnf_map_sv },
-    { "SY", "Syria", &mnf_flag_sy, &mnf_map_sy },
-    { "SZ", "Eswatini", &mnf_flag_sz, &mnf_map_sz },
-    { "TD", "Chad", &mnf_flag_td, &mnf_map_td },
-    { "TG", "Togo", &mnf_flag_tg, &mnf_map_tg },
-    { "TH", "Thailand", &mnf_flag_th, &mnf_map_th },
-    { "TJ", "Tajikistan", &mnf_flag_tj, &mnf_map_tj },
-    { "TL", "East Timor", &mnf_flag_tl, &mnf_map_tl },
-    { "TM", "Turkmenistan", &mnf_flag_tm, &mnf_map_tm },
-    { "TN", "Tunisia", &mnf_flag_tn, &mnf_map_tn },
-    { "TO", "Tonga", &mnf_flag_to, &mnf_map_to },
-    { "TR", "Turkey", &mnf_flag_tr, &mnf_map_tr },
-    { "TT", "Trinidad and Tobago", &mnf_flag_tt, &mnf_map_tt },
+    { "PT", "Portugal", &mnf_flag_pt, NULL },
+    { "PW", "Palau", &mnf_flag_pw, NULL },
+    { "PY", "Paraguay", &mnf_flag_py, NULL },
+    { "QA", "Qatar", &mnf_flag_qa, NULL },
+    { "RO", "Romania", &mnf_flag_ro, NULL },
+    { "RS", "Serbia", &mnf_flag_rs, NULL },
+    { "RU", "Russia", &mnf_flag_ru, NULL },
+    { "RW", "Rwanda", &mnf_flag_rw, NULL },
+    { "SA", "Saudi Arabia", &mnf_flag_sa, NULL },
+    { "SB", "Solomon Islands", &mnf_flag_sb, NULL },
+    { "SC", "Seychelles", &mnf_flag_sc, NULL },
+    { "SD", "Sudan", &mnf_flag_sd, NULL },
+    { "SE", "Sweden", &mnf_flag_se, NULL },
+    { "SG", "Singapore", &mnf_flag_sg, NULL },
+    { "SI", "Slovenia", &mnf_flag_si, NULL },
+    { "SK", "Slovakia", &mnf_flag_sk, NULL },
+    { "SL", "Sierra Leone", &mnf_flag_sl, NULL },
+    { "SM", "San Marino", &mnf_flag_sm, NULL },
+    { "SN", "Senegal", &mnf_flag_sn, NULL },
+    { "SO", "Somalia", &mnf_flag_so, NULL },
+    { "SR", "Suriname", &mnf_flag_sr, NULL },
+    { "SS", "South Sudan", &mnf_flag_ss, NULL },
+    { "ST", "Sao Tome and Principe", &mnf_flag_st, NULL },
+    { "SV", "El Salvador", &mnf_flag_sv, NULL },
+    { "SY", "Syria", &mnf_flag_sy, NULL },
+    { "SZ", "Eswatini", &mnf_flag_sz, NULL },
+    { "TD", "Chad", &mnf_flag_td, NULL },
+    { "TG", "Togo", &mnf_flag_tg, NULL },
+    { "TH", "Thailand", &mnf_flag_th, NULL },
+    { "TJ", "Tajikistan", &mnf_flag_tj, NULL },
+    { "TL", "East Timor", &mnf_flag_tl, NULL },
+    { "TM", "Turkmenistan", &mnf_flag_tm, NULL },
+    { "TN", "Tunisia", &mnf_flag_tn, NULL },
+    { "TO", "Tonga", &mnf_flag_to, NULL },
+    { "TR", "Turkey", &mnf_flag_tr, NULL },
+    { "TT", "Trinidad and Tobago", &mnf_flag_tt, NULL },
     { "TV", "Tuvalu", &mnf_flag_tv, NULL },
-    { "TZ", "Tanzania", &mnf_flag_tz, &mnf_map_tz },
-    { "UA", "Ukraine", &mnf_flag_ua, &mnf_map_ua },
-    { "UG", "Uganda", &mnf_flag_ug, &mnf_map_ug },
-    { "US", "United States", &mnf_flag_us, &mnf_map_us },
-    { "UY", "Uruguay", &mnf_flag_uy, &mnf_map_uy },
-    { "UZ", "Uzbekistan", &mnf_flag_uz, &mnf_map_uz },
-    { "VA", "Vatican City", &mnf_flag_va, &mnf_map_va },
-    { "VC", "Saint Vincent and the Grenadines", &mnf_flag_vc, &mnf_map_vc },
-    { "VE", "Venezuela", &mnf_flag_ve, &mnf_map_ve },
-    { "VN", "Vietnam", &mnf_flag_vn, &mnf_map_vn },
-    { "VU", "Vanuatu", &mnf_flag_vu, &mnf_map_vu },
-    { "WS", "Samoa", &mnf_flag_ws, &mnf_map_ws },
-    { "YE", "Yemen", &mnf_flag_ye, &mnf_map_ye },
-    { "ZA", "South Africa", &mnf_flag_za, &mnf_map_za },
-    { "ZM", "Zambia", &mnf_flag_zm, &mnf_map_zm },
-    { "ZW", "Zimbabwe", &mnf_flag_zw, &mnf_map_zw },
+    { "TZ", "Tanzania", &mnf_flag_tz, NULL },
+    { "UA", "Ukraine", &mnf_flag_ua, NULL },
+    { "UG", "Uganda", &mnf_flag_ug, NULL },
+    { "US", "United States", &mnf_flag_us, NULL },
+    { "UY", "Uruguay", &mnf_flag_uy, NULL },
+    { "UZ", "Uzbekistan", &mnf_flag_uz, NULL },
+    { "VA", "Vatican City", &mnf_flag_va, NULL },
+    { "VC", "Saint Vincent and the Grenadines", &mnf_flag_vc, NULL },
+    { "VE", "Venezuela", &mnf_flag_ve, NULL },
+    { "VN", "Vietnam", &mnf_flag_vn, NULL },
+    { "VU", "Vanuatu", &mnf_flag_vu, NULL },
+    { "WS", "Samoa", &mnf_flag_ws, NULL },
+    { "YE", "Yemen", &mnf_flag_ye, NULL },
+    { "ZA", "South Africa", &mnf_flag_za, NULL },
+    { "ZM", "Zambia", &mnf_flag_zm, NULL },
+    { "ZW", "Zimbabwe", &mnf_flag_zw, NULL },
 };
 
 extern const uint16_t mnf_country_count = 195;

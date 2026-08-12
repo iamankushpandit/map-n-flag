@@ -5,12 +5,12 @@
  *
  * Build configuration:
  *   scope      : un195
- *   countries  : 195  (flags: 195, maps: 191)
+ *   countries  : 195  (flags: 195, maps: 0)
  *   flag size  : 80x60, 4-bit indexed (16-colour palette)
  *   map size   : fit inside 96x96, 4-bit indexed alpha ramp
  *
  * Flash footprint:
- *   flags 469.2 KiB + maps 642.7 KiB = 1111.9 KiB
+ *   flags 469.2 KiB + maps 0.0 KiB = 469.2 KiB
  *   RAM cost: 0 bytes. Everything is const and lives in .rodata.
  *
  * This core header has NO dependencies beyond stdint/stddef -- it does not

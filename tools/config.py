@@ -27,6 +27,16 @@ FLAG_H = 60
 # ---------------------------------------------------------------------------
 # Map outlines
 # ---------------------------------------------------------------------------
+# Set False to omit the country outlines entirely -- no arrays emitted and the
+# table's map pointers become NULL.
+#
+# This is the switch that makes the library commercially usable. The outline
+# artwork (djaiss/mapsicon) forbids resale, and simply not *using* it is not
+# enough: mnf_table.cpp references every outline, so the data stays linked into
+# any firmware that includes the library. Turning this off drops ~643 KiB and
+# leaves only the MIT-licensed flags.
+GENERATE_MAPS = False
+
 # Each silhouette is cropped to its tight bounding box, then scaled to fit
 # inside a MAP_BOX x MAP_BOX square with aspect preserved. Cropping matters a
 # lot: Chile becomes ~17x96 instead of a mostly-empty 96x96.
