@@ -57,6 +57,118 @@ in PlatformIO `board_build.partitions = huge_app.csv`.
 
 ---
 
+## How to Use
+
+This section walks you through the typical steps to get map-n-flag running on
+your ESP32, from installation to drawing your first flag.
+
+### 1. Install the library
+
+Follow the [Install](#install) instructions above — PlatformIO is recommended.
+Make sure you set the partition scheme to `huge_app.csv`.
+
+### 2. Include the header and look up a country
+
+```cpp
+#include "map_n_flag.h"
+
+// Lookup by ISO 3166-1 alpha-2 code (case-insensitive)
+const mnf_img_t *flag = mnf_flag("DE");   // Germany flag (80×60)
+const mnf_img_t *map  = mnf_map("DE");    // Germany outline silhouette
+const char      *name = mnf_name("DE");   // "Germany"
+```
+
+All lookups return `NULL` for unknown codes, so always check the pointer before
+drawing. Four countries (FM, MH, PS, TV) have a flag but no outline — use
+`mnf_has_both()` to filter them when you need both.
+
+### 3. Draw with TFT_eSPI (no LVGL)
+
+Decode one row at a time straight from flash — no framebuffer, ~192 bytes of
+scratch:
+
+```cpp
+#include <TFT_eSPI.h>
+#include "map_n_flag.h"
+
+TFT_eSPI tft;
+static uint16_t row[96];
+
+void draw_flag(const mnf_img_t *img, int16_t x, int16_t y) {
+    if (img == NULL) return;
+    tft.startWrite();
+    for (uint16_t yy = 0; yy < img->h; yy++) {
+        mnf_row_rgb565(img, yy, row, TFT_WHITE);
+        tft.setAddrWindow(x, y + yy, img->w, 1);
+        tft.pushPixels(row, img->w);
+    }
+    tft.endWrite();
+}
+
+void setup() {
+    tft.init();
+    tft.setRotation(1);
+    tft.fillScreen(TFT_WHITE);
+    draw_flag(mnf_flag("JP"), 30, 90);   // draw Japan's flag
+}
+```
+
+Outline silhouettes store a 16-step alpha ramp — recolour them at draw time
+with `mnf_row_rgb565_tint()`:
+
+```cpp
+// Draw Germany's outline in navy blue
+for (uint16_t yy = 0; yy < map->h; yy++) {
+    mnf_row_rgb565_tint(map, yy, row, TFT_WHITE,
+                        tft.color565(0x1E, 0x3A, 0x8A));
+    tft.setAddrWindow(200, 90 + yy, map->w, 1);
+    tft.pushPixels(row, map->w);
+}
+```
+
+See the complete sketch in [`examples/TftEspiDemo`](examples/TftEspiDemo/TftEspiDemo.ino).
+
+### 4. Draw with LVGL (optional)
+
+Include the optional adapter header. Each `mnf_lv_dsc_t` slot must stay alive
+as long as the widget is visible — one slot per displayed image.
+
+```cpp
+#include "map_n_flag_lvgl.h"
+
+static mnf_lv_dsc_t flag_slot;
+
+lv_obj_t *img = lv_img_create(lv_scr_act());
+lv_img_set_src(img, mnf_lv_bind(&flag_slot, mnf_flag("JP")));
+lv_obj_center(img);
+```
+
+See the complete sketch in [`examples/LvglDemo`](examples/LvglDemo/LvglDemo.ino).
+
+### 5. Iterate over all countries
+
+```cpp
+for (size_t i = 0; i < mnf_count(); i++) {
+    const mnf_country_t *c = mnf_at(i);   // sorted by ISO code
+    if (!mnf_has_both(c->iso2)) continue; // skip the 4 without an outline
+    // use c->iso2, c->name, c->flag, c->map
+}
+```
+
+### 6. Use US state assets (opt-in)
+
+The state API mirrors the country API, keyed by 2-letter USPS abbreviation:
+
+```cpp
+const mnf_img_t *sf = mnf_state_flag("CA");   // California flag
+const mnf_img_t *sm = mnf_state_map("CA");    // California outline
+const char      *sn = mnf_state_name("CA");   // "California"
+```
+
+US state assets are commercially safe — see [Licensing](#licensing) for details.
+
+---
+
 ## API
 
 One header, thirteen functions, two structs. Lookup is a binary search over a
