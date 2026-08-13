@@ -25,30 +25,21 @@ FLAG_W = 80
 FLAG_H = 60
 
 # ---------------------------------------------------------------------------
-# Map outlines
+# Map outlines (US states only)
 # ---------------------------------------------------------------------------
-# Set False to omit the country outlines entirely -- no arrays emitted and the
-# table's map pointers become NULL.
-#
-# This is the switch that makes the library commercially usable. The outline
-# artwork (djaiss/mapsicon) forbids resale, and simply not *using* it is not
-# enough: mnf_table.cpp references every outline, so the data stays linked into
-# any firmware that includes the library. Turning this off drops ~643 KiB and
-# leaves only the MIT-licensed flags.
-GENERATE_MAPS = False
-
 # Each silhouette is cropped to its tight bounding box, then scaled to fit
 # inside a MAP_BOX x MAP_BOX square with aspect preserved. Cropping matters a
 # lot: Chile becomes ~17x96 instead of a mostly-empty 96x96.
 MAP_BOX = 96
 
-# Ink colour for map silhouettes, as (R, G, B). The 16-entry palette is an
-# alpha ramp of this single colour, which gives antialiased edges identical to
-# a 4-bit alpha mask while staying in a format both LVGL v8 and v9 can render.
+# Ink colour for map silhouettes (used for US state outlines), as (R, G, B).
+# The 16-entry palette is an alpha ramp of this single colour, which gives
+# antialiased edges identical to a 4-bit alpha mask while staying in a format
+# both LVGL v8 and v9 can render.
 MAP_INK = (0x1E, 0x3A, 0x8A)
 
 # Drop tiny disconnected specks (stray islands) below this fraction of the
-# country's total ink. Keeps small nations legible; set to 0.0 to disable.
+# state's total ink. Keeps small states legible; set to 0.0 to disable.
 MAP_SPECK_THRESHOLD = 0.0
 
 # ---------------------------------------------------------------------------
@@ -63,9 +54,8 @@ MAP_SPECK_THRESHOLD = 0.0
 # State codes are 2-letter USPS abbreviations, not ISO 3166-2 "US-CA".
 GENERATE_STATES = True
 
-# Set False to omit state outline maps. Unlike the country outlines
-# (mapsicon, no resale), the state outlines come from Natural Earth (public
-# domain), so there is no commercial restriction.
+# Set False to omit state outline maps. The state outlines come from
+# Natural Earth (public domain), so there is no commercial restriction.
 GENERATE_STATE_MAPS = True
 
 # ---------------------------------------------------------------------------

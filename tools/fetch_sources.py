@@ -8,12 +8,6 @@ Shallow clones only -- together they are a few hundred MB at full depth.
 LICENSING
 ---------
 flag-icons   : MIT. Unrestricted for this use.
-mapsicon     : NOT an OSI licence. The upstream README states, verbatim:
-                   "Do what you want with them as long as you mention me in your
-                    project. Please don't resell them - I forbid it!"
-               Fine for a personal/hobby project WITH attribution to David Jaiss.
-               NOT usable in anything you sell. See README.md for a public-domain
-               alternative (Natural Earth) if that ever becomes a problem.
 region-flags : Public domain (Wikipedia-sourced). US state flags.
 Natural Earth: Public domain. US state outlines.
 """
@@ -28,7 +22,6 @@ VENDOR = ROOT / "vendor"
 
 GIT_SOURCES = [
     ("flag-icons", "https://github.com/lipis/flag-icons.git", "MIT"),
-    ("mapsicon", "https://github.com/djaiss/mapsicon.git", "attribution-only, no resale"),
     ("region-flags", "https://github.com/fonttools/region-flags.git", "public domain"),
 ]
 
@@ -72,9 +65,6 @@ def main() -> None:
     fetch_natural_earth()
 
     print("\nSources ready. Next: python tools/build.py")
-    print("\nREMINDER: mapsicon requires attribution to David Jaiss and forbids")
-    print("resale. Keep the credit in the generated headers and your game's")
-    print("about screen.")
 
 
 if __name__ == "__main__":

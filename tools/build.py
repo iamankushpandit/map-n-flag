@@ -4,8 +4,7 @@ map-n-flag build pipeline.
     python tools/build.py            # full rebuild using tools/config.py
     python tools/build.py --report   # size report only, writes nothing
 
-Reads SVG flags from vendor/flag-icons and silhouette PNGs from
-vendor/mapsicon, and emits a plain C++ library under src/.
+Reads SVG flags from vendor/flag-icons and emits a plain C++ library under src/.
 
 Everything ends up in 4-bit indexed format (I4):
 
@@ -38,13 +37,11 @@ from templates import HEADER_TEMPLATE, IMPL_SOURCE  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 FLAG_SVG_DIR = ROOT / "vendor" / "flag-icons" / "flags" / "4x3"
 STATE_FLAG_SVG_DIR = ROOT / "vendor" / "region-flags" / "svg"
-MAP_DIR = ROOT / "vendor" / "mapsicon" / "all"
 STATE_MAP_DIR = ROOT / "build" / "state_maps"
 BUILD_DIR = ROOT / "build"
 OUT_DIR = ROOT / "src"
 
 PALETTE_ENTRIES = 16  # fixed by I4
-MAP_SRC = "1024.png"
 
 
 # ---------------------------------------------------------------------------
@@ -173,26 +170,6 @@ def load_flag(code: str, raw_dir: Path) -> Indexed | None:
     return quantize_rgba(rgba)
 
 
-def load_map(code: str) -> Indexed | None:
-    p = MAP_DIR / code.lower() / MAP_SRC
-    if not p.exists():
-        return None
-    im = Image.open(p).convert("RGBA")
-    alpha = im.split()[3]
-    bbox = alpha.getbbox()
-    if bbox is None:
-        return None
-    alpha = alpha.crop(bbox)
-
-    box = config.MAP_BOX
-    scale = min(box / alpha.width, box / alpha.height)
-    w = max(1, round(alpha.width * scale))
-    h = max(1, round(alpha.height * scale))
-    alpha = alpha.resize((w, h), Image.LANCZOS)
-
-    return alpha_ramp_indexed(np.asarray(alpha, dtype=np.uint8), config.MAP_INK)
-
-
 def load_state_map(code: str, state_map_dir: Path) -> Indexed | None:
     p = state_map_dir / f"{code}.png"
     if not p.exists():
@@ -218,10 +195,6 @@ ATTRIBUTION = """/*
  * Re-run `python tools/build.py` after changing tools/config.py.
  *
  * Country flag artwork:  lipis/flag-icons          -- MIT License.
- * Country map artwork:   djaiss/mapsicon (David Jaiss) -- used with attribution.
- *                        "Do what you want with them as long as you mention me in
- *                         your project. Please don't resell them - I forbid it!"
- *                        NOT free for commercial resale. See README.md.
  * State flag artwork:    fonttools/region-flags     -- public domain (Wikipedia).
  * State map artwork:     Natural Earth              -- public domain.
  */
@@ -391,8 +364,6 @@ def main() -> None:
 
     if not FLAG_SVG_DIR.is_dir():
         sys.exit(f"Missing {FLAG_SVG_DIR}. Run: python tools/fetch_sources.py")
-    if not MAP_DIR.is_dir():
-        sys.exit(f"Missing {MAP_DIR}. Run: python tools/fetch_sources.py")
 
     rows = select_countries()
     print(f"scope={config.SCOPE}: {len(rows)} countries")
@@ -417,24 +388,17 @@ def main() -> None:
     print(f"  rasterised {info['rasterised']}, missing {len(info['missing'])}")
 
     # --- convert countries ------------------------------------------------
-    flag_items, map_items = [], []
-    missing_maps = []
+    flag_items = []
     for r in rows:
         code = r["code"]
         f_img = load_flag(code, raw_dir)
         if f_img is not None:
             flag_items.append((code, f_img, pack_i4(f_img)))
-        m_img = load_map(code) if getattr(config, "GENERATE_MAPS", True) else None
-        if m_img is not None:
-            map_items.append((code, m_img, pack_i4(m_img)))
-        else:
-            missing_maps.append(code)
 
     flag_bytes = sum(len(b) for _, _, b in flag_items)
-    map_bytes = sum(len(b) for _, _, b in map_items)
     stats = {
-        "n_flags": len(flag_items), "n_maps": len(map_items),
-        "flag_bytes": flag_bytes, "map_bytes": map_bytes,
+        "n_flags": len(flag_items), "n_maps": 0,
+        "flag_bytes": flag_bytes, "map_bytes": 0,
     }
 
     print()
@@ -442,14 +406,10 @@ def main() -> None:
     print("  COUNTRIES")
     print(f"  Flags : {len(flag_items):3d} images  {flag_bytes:8,d} B  "
           f"{flag_bytes/1024:8.1f} KiB  ({flag_bytes/max(1,len(flag_items)):.0f} B avg)")
-    print(f"  Maps  : {len(map_items):3d} images  {map_bytes:8,d} B  "
-          f"{map_bytes/1024:8.1f} KiB  ({map_bytes/max(1,len(map_items)):.0f} B avg)")
-    print(f"  TOTAL :              {flag_bytes+map_bytes:8,d} B  "
-          f"{(flag_bytes+map_bytes)/1024:8.1f} KiB  "
-          f"({(flag_bytes+map_bytes)/1048576:.2f} MiB)")
+    print(f"  TOTAL :              {flag_bytes:8,d} B  "
+          f"{flag_bytes/1024:8.1f} KiB  "
+          f"({flag_bytes/1048576:.2f} MiB)")
     print("=" * 62)
-    if missing_maps:
-        print(f"  no map available: {', '.join(missing_maps)}")
     print()
 
     # --- US states --------------------------------------------------------
@@ -556,7 +516,7 @@ def main() -> None:
     (OUT_DIR / "map_n_flag.cpp").write_text(IMPL_SOURCE, encoding="utf-8")
 
     flag_syms = dict(emit_data_files("flag", flag_items))
-    map_syms = dict(emit_data_files("map", map_items)) if map_items else {}
+    map_syms = {}
     emit_tables(rows, flag_syms, map_syms)
 
     if generate_states and state_rows:

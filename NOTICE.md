@@ -17,42 +17,6 @@ palette. No other modification.
 
 ---
 
-## Country map outlines — djaiss/mapsicon
-
-- Source: <https://github.com/djaiss/mapsicon>
-- Author: **David Jaiss**
-- License: ⚠️ **Custom, not an OSI-approved license.**
-
-The upstream README states, verbatim:
-
-> Do what you want with them as long as you mention me in your project.
-> Please don't resell them - I forbid it!
-
-### What this means
-
-✅ **Permitted:** personal, hobby, and educational use — **provided David Jaiss
-is credited**. That credit appears in every generated source file, in this
-file, and in `README.md`. You should also add it to an about/credits screen in
-any application that ships these assets.
-
-❌ **Not permitted:** reselling the artwork, or shipping it in a product you
-sell. This clause makes the outlines **unsuitable for commercial use**.
-
-### If you need commercial rights
-
-Replace the outline artwork with [Natural Earth](https://www.naturalearthdata.com/)
-`ne_110m_admin_0_countries`, which is in the **public domain** with no
-restrictions. Only `load_map()` in `tools/build.py` needs to change — it would
-rasterise the polygons instead of loading mapsicon PNGs. Everything downstream
-(quantisation, packing, emission, the whole API) is unaffected, and the flags
-are MIT so they need no changes at all.
-
-The following countries are absent from mapsicon and therefore have a flag but
-no outline: **FM** (Micronesia), **MH** (Marshall Islands), **PS** (Palestine),
-**TV** (Tuvalu). Upstream omits them as too small to draw.
-
----
-
 ## US state flags — fonttools/region-flags
 
 - Source: <https://github.com/fonttools/region-flags>
@@ -73,7 +37,7 @@ palette. No other modification.
 - Status: ✅ **Unrestricted.** Commercial use is fine.
 
 State outlines were extracted from the Natural Earth GeoJSON, rendered as
-alpha-ramp silhouettes, and encoded the same way as country outlines. While
+alpha-ramp silhouettes, and encoded as 4-bit indexed images. While
 no credit is required, a link back to Natural Earth is appreciated.
 
 ---

@@ -28,8 +28,6 @@ HEADER_TEMPLATE = r'''/*
  *
  * Artwork credits:
  *   Country flags -- lipis/flag-icons, MIT License.
- *   Country maps  -- djaiss/mapsicon by David Jaiss, used with attribution.
- *                    Not licensed for resale. See README.md.
  *   State flags   -- fonttools/region-flags, public domain (Wikipedia).
  *   State maps    -- Natural Earth, public domain.
  */
