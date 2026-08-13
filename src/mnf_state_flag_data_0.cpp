@@ -3,10 +3,6 @@
  * Re-run `python tools/build.py` after changing tools/config.py.
  *
  * Country flag artwork:  lipis/flag-icons          -- MIT License.
- * Country map artwork:   djaiss/mapsicon (David Jaiss) -- used with attribution.
- *                        "Do what you want with them as long as you mention me in
- *                         your project. Please don't resell them - I forbid it!"
- *                        NOT free for commercial resale. See README.md.
  * State flag artwork:    fonttools/region-flags     -- public domain (Wikipedia).
  * State map artwork:     Natural Earth              -- public domain.
  */

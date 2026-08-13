@@ -197,8 +197,6 @@ Measured with `xtensa-esp32-elf-size` on compiled objects, not estimated.
 | | Count | Flash |
 |---|---|---|
 | Country flags @ 80×60 | 195 | 469.2 KiB |
-| Country outlines @ ≤96 px | 191 | 642.7 KiB |
-| **Country total** | **386** | **1,112 KiB (1.09 MiB)** |
 
 ### US states (opt-in)
 
@@ -212,33 +210,6 @@ Measured with `xtensa-esp32-elf-size` on compiled objects, not estimated.
 |---|---|
 | Code (`.text`) | ~1.5 KiB |
 | **RAM (`.bss` + `.data`)** | **0 bytes** |
-
-Four countries have a flag but no outline — mapsicon omits them as too small to
-draw: **FM, MH, PS, TV**. Their `map` pointer is `NULL`; use `mnf_has_both()`
-to skip them in paired modes.
-
----
-
-### ⚠️ Commercial use: turn the country outlines off
-
-The **country** outline artwork (mapsicon) forbids resale, and **not using it is
-not enough** — the generated `mnf_table.cpp` references every outline, so the
-data stays linked into any firmware that includes this library. To ship
-something you sell:
-
-```python
-# tools/config.py
-GENERATE_MAPS = False
-```
-
-That emits no outline arrays, NULLs every `map` pointer, and drops the build
-from 1.11 MiB to **469 KiB** — leaving only the MIT-licensed flags. `mnf_map()`
-then returns `NULL` for every country, so guard with `mnf_has_both()` or check
-the pointer.
-
-**US state assets are commercially safe.** State flags come from
-fonttools/region-flags (public domain) and state outlines from Natural Earth
-(public domain). `GENERATE_STATES = True` is fine in commercial firmware.
 
 ---
 
@@ -273,17 +244,11 @@ Everything adjustable lives in [`tools/config.py`](tools/config.py):
 |---|---|---|
 | `SCOPE` | `"un195"` | `"all"` (~249), `"un195"` (195), `"curated"` (~62) |
 | `FLAG_W` / `FLAG_H` | `80` / `60` | Flag resolution |
-| `MAP_BOX` | `96` | Max outline dimension |
+| `MAP_BOX` | `96` | Max state outline dimension |
 | `MAP_INK` | navy | Baked silhouette colour (overridable at draw time) |
 | `TU_SPLIT` | `4` | Number of generated `.cpp` files |
 | `GENERATE_STATES` | `True` | Include US state flags and maps |
 | `GENERATE_STATE_MAPS` | `True` | Include state outline maps |
-
-| Scope | Countries | Flags | Maps | Total |
-|---|---|---|---|---|
-| `all` | 249 | 599.2 KiB | 804.8 KiB | 1.37 MiB |
-| `un195` | 195 | 469.2 KiB | 642.7 KiB | **1.09 MiB** ← current |
-| `curated` | 62 | 149.2 KiB | 200.6 KiB | 0.34 MiB |
 
 US states add ~280 KiB (122.7 KiB flags + 157.9 KiB maps). Set
 `GENERATE_STATES = False` to exclude them entirely.
@@ -328,48 +293,26 @@ and it renders everywhere. It also makes runtime recolouring trivial.
 flatten it onto a white box, palette slot 0 is reserved as fully transparent
 whenever a flag has transparent pixels, so it composites over any background.
 
-**Outline cropping.** Each silhouette is cropped to its tight bounding box
-before scaling to fit `MAP_BOX`. Chile becomes ~17×96 instead of a mostly-empty
-96×96. Read `img->w` / `img->h` for real dimensions; `MNF_MAP_BOX` is only the
-maximum.
-
-Note that mapsicon normalises **each country to fill its own frame**, so the
-silhouettes carry no relative-size information — Vatican City and Russia are
-drawn at the same scale. That is the right call for recognisability at 96 px,
-but don't build a "which country is bigger?" mode on this data.
+**Outline cropping.** Each state silhouette is cropped to its tight bounding box
+before scaling to fit `MAP_BOX`. Read `img->w` / `img->h` for real dimensions;
+`MNF_MAP_BOX` is only the maximum.
 
 ---
 
 ## Licensing
 
 The **pipeline and library code** in this repo are MIT (see `LICENSE`).
-The **artwork** comes from two upstream projects:
+The **artwork** comes from the following upstream projects:
 
 | Asset set | Source | License | Commercial? |
 |---|---|---|---|
 | Country flags | [lipis/flag-icons](https://github.com/lipis/flag-icons) | **MIT** | ✅ Yes |
-| Country outlines | [djaiss/mapsicon](https://github.com/djaiss/mapsicon) | ⚠️ **Custom** | ❌ No resale |
 | US state flags | [fonttools/region-flags](https://github.com/fonttools/region-flags) | **Public domain** | ✅ Yes |
 | US state outlines | [Natural Earth](https://www.naturalearthdata.com/) | **Public domain** | ✅ Yes |
 
-mapsicon (country outlines) has no standard license. Its README states, verbatim:
-
-> Do what you want with them as long as you mention me in your project.
-> Please don't resell them - I forbid it!
-
-**Fine for a personal or hobby project, provided you credit David Jaiss** — the
-credit is in every generated file, in `NOTICE.md`, and here. Please also put it
-on an about/credits screen.
-
-**It is not usable in anything you sell.** If this ever becomes commercial, the
-outline artwork must be replaced. The drop-in replacement is
-[Natural Earth](https://www.naturalearthdata.com/) `admin_0_countries` (public
-domain), which touches only `load_map()` in `tools/build.py`. The flags are MIT
-and need no changes either way.
-
-**US state assets are commercially safe.** Both the state flags (public domain
-from Wikipedia) and state outlines (Natural Earth, public domain) can be used
-in commercial products without restriction.
+All artwork used in this library is commercially safe. Country flags are MIT
+licensed, US state flags are public domain, and US state outlines come from
+Natural Earth (public domain).
 
 ---
 
@@ -646,8 +589,6 @@ All 51 US states (+ DC). Same format as above.
 ## Credits
 
 - Country flags — [lipis/flag-icons](https://github.com/lipis/flag-icons), MIT License.
-- Country outlines — [djaiss/mapsicon](https://github.com/djaiss/mapsicon) by **David Jaiss**,
-  used with attribution. Not licensed for resale.
 - US state flags — [fonttools/region-flags](https://github.com/fonttools/region-flags),
   public domain (Wikipedia).
 - US state outlines — [Natural Earth](https://www.naturalearthdata.com/), public domain.
