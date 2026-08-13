@@ -6,11 +6,13 @@
  * Build configuration:
  *   scope      : un195
  *   countries  : 195  (flags: 195, maps: 0)
+ *   states     : 51  (flags: 51, maps: 51)
  *   flag size  : 80x60, 4-bit indexed (16-colour palette)
  *   map size   : fit inside 96x96, 4-bit indexed alpha ramp
  *
  * Flash footprint:
- *   flags 469.2 KiB + maps 0.0 KiB = 469.2 KiB
+ *   country flags 469.2 KiB + maps 0.0 KiB = 469.2 KiB
+ *   state   flags 122.7 KiB + maps 160.6 KiB = 283.4 KiB
  *   RAM cost: 0 bytes. Everything is const and lives in .rodata.
  *
  * This core header has NO dependencies beyond stdint/stddef -- it does not
@@ -18,9 +20,11 @@
  * "map_n_flag_lvgl.h", which adapts them to lv_img_dsc_t / lv_image_dsc_t.
  *
  * Artwork credits:
- *   Flags -- lipis/flag-icons, MIT License.
- *   Maps  -- djaiss/mapsicon by David Jaiss, used with attribution.
- *            Not licensed for resale. See README.md.
+ *   Country flags -- lipis/flag-icons, MIT License.
+ *   Country maps  -- djaiss/mapsicon by David Jaiss, used with attribution.
+ *                    Not licensed for resale. See README.md.
+ *   State flags   -- fonttools/region-flags, public domain (Wikipedia).
+ *   State maps    -- Natural Earth, public domain.
  */
 #ifndef MAP_N_FLAG_H
 #define MAP_N_FLAG_H
@@ -74,8 +78,12 @@ typedef struct {
     const mnf_img_t *map;     /**< Outline, or NULL if not generated. */
 } mnf_country_t;
 
+/** One US state: abbreviation, display name, and its two images.
+ *  Layout-compatible with mnf_country_t; aliased as mnf_state_t for clarity. */
+typedef mnf_country_t mnf_state_t;
+
 /* ------------------------------------------------------------------------
- * Lookup
+ * Country lookup (unchanged)
  * ---------------------------------------------------------------------- */
 
 /** Number of countries in the table. */
@@ -98,6 +106,36 @@ const char *mnf_name(const char *iso2);
 
 /** True if the country has BOTH a flag and a map (for paired game modes). */
 bool mnf_has_both(const char *iso2);
+
+/* ------------------------------------------------------------------------
+ * US state lookup
+ *
+ * Parallel API keyed by 2-letter USPS abbreviation ("CA", "TX", "NY").
+ * Returns NULL/0/false when GENERATE_STATES was off at build time.
+ * ---------------------------------------------------------------------- */
+
+#define MNF_HAS_STATES  1
+
+/** Number of US states (+ DC) in the table. 0 if states were not generated. */
+size_t mnf_state_count(void);
+
+/** State at index [0, mnf_state_count()), sorted by abbreviation. */
+const mnf_state_t *mnf_state_at(size_t index);
+
+/** Look up by abbreviation, case-insensitive ("CA" or "ca"). */
+const mnf_state_t *mnf_state_find(const char *st);
+
+/** State flag for an abbreviation, or NULL. */
+const mnf_img_t *mnf_state_flag(const char *st);
+
+/** State outline for an abbreviation, or NULL. */
+const mnf_img_t *mnf_state_map(const char *st);
+
+/** State display name ("California"), or NULL. */
+const char *mnf_state_name(const char *st);
+
+/** True if the state has BOTH a flag and a map. */
+bool mnf_state_has_both(const char *st);
 
 /* ------------------------------------------------------------------------
  * Pixel access -- for drawing without LVGL (TFT_eSPI, LovyanGFX, anything)

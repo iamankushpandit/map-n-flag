@@ -8,8 +8,11 @@
 extern const mnf_country_t mnf_country_table[];
 extern const uint16_t mnf_country_count;
 
+extern const mnf_state_t mnf_state_table[];
+extern const uint16_t mnf_state_count_val;
+
 /* ------------------------------------------------------------------------
- * Lookup
+ * Country lookup
  * ---------------------------------------------------------------------- */
 
 size_t mnf_count(void)
@@ -68,6 +71,67 @@ bool mnf_has_both(const char *iso2)
 {
     const mnf_country_t *c = mnf_find(iso2);
     return c != NULL && c->flag != NULL && c->map != NULL;
+}
+
+/* ------------------------------------------------------------------------
+ * US state lookup
+ * ---------------------------------------------------------------------- */
+
+size_t mnf_state_count(void)
+{
+    return (size_t)mnf_state_count_val;
+}
+
+const mnf_state_t *mnf_state_at(size_t index)
+{
+    if (index >= (size_t)mnf_state_count_val) return NULL;
+    return &mnf_state_table[index];
+}
+
+const mnf_state_t *mnf_state_find(const char *st)
+{
+    if (st == NULL || st[0] == '\0' || st[1] == '\0') return NULL;
+
+    const char key0 = (char)toupper((unsigned char)st[0]);
+    const char key1 = (char)toupper((unsigned char)st[1]);
+
+    int lo = 0;
+    int hi = (int)mnf_state_count_val - 1;
+    while (lo <= hi) {
+        const int mid = lo + (hi - lo) / 2;
+        const char *c = mnf_state_table[mid].iso2;
+        int cmp = (c[0] - key0);
+        if (cmp == 0) cmp = (c[1] - key1);
+
+        if (cmp == 0) return &mnf_state_table[mid];
+        if (cmp < 0)  lo = mid + 1;
+        else          hi = mid - 1;
+    }
+    return NULL;
+}
+
+const mnf_img_t *mnf_state_flag(const char *st)
+{
+    const mnf_state_t *s = mnf_state_find(st);
+    return s ? s->flag : NULL;
+}
+
+const mnf_img_t *mnf_state_map(const char *st)
+{
+    const mnf_state_t *s = mnf_state_find(st);
+    return s ? s->map : NULL;
+}
+
+const char *mnf_state_name(const char *st)
+{
+    const mnf_state_t *s = mnf_state_find(st);
+    return s ? s->name : NULL;
+}
+
+bool mnf_state_has_both(const char *st)
+{
+    const mnf_state_t *s = mnf_state_find(st);
+    return s != NULL && s->flag != NULL && s->map != NULL;
 }
 
 /* ------------------------------------------------------------------------

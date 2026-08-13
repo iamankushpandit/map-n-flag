@@ -13,11 +13,13 @@ HEADER_TEMPLATE = r'''/*
  * Build configuration:
  *   scope      : @@SCOPE@@
  *   countries  : @@N_COUNTRIES@@  (flags: @@N_FLAGS@@, maps: @@N_MAPS@@)
+ *   states     : @@N_STATES@@  (flags: @@N_STATE_FLAGS@@, maps: @@N_STATE_MAPS@@)
  *   flag size  : @@FLAG_W@@x@@FLAG_H@@, 4-bit indexed (16-colour palette)
  *   map size   : fit inside @@MAP_BOX@@x@@MAP_BOX@@, 4-bit indexed alpha ramp
  *
  * Flash footprint:
- *   flags @@FLAG_KIB@@ KiB + maps @@MAP_KIB@@ KiB = @@TOTAL_KIB@@ KiB
+ *   country flags @@FLAG_KIB@@ KiB + maps @@MAP_KIB@@ KiB = @@TOTAL_KIB@@ KiB
+ *   state   flags @@STATE_FLAG_KIB@@ KiB + maps @@STATE_MAP_KIB@@ KiB = @@STATE_TOTAL_KIB@@ KiB
  *   RAM cost: 0 bytes. Everything is const and lives in .rodata.
  *
  * This core header has NO dependencies beyond stdint/stddef -- it does not
@@ -25,9 +27,11 @@ HEADER_TEMPLATE = r'''/*
  * "map_n_flag_lvgl.h", which adapts them to lv_img_dsc_t / lv_image_dsc_t.
  *
  * Artwork credits:
- *   Flags -- lipis/flag-icons, MIT License.
- *   Maps  -- djaiss/mapsicon by David Jaiss, used with attribution.
- *            Not licensed for resale. See README.md.
+ *   Country flags -- lipis/flag-icons, MIT License.
+ *   Country maps  -- djaiss/mapsicon by David Jaiss, used with attribution.
+ *                    Not licensed for resale. See README.md.
+ *   State flags   -- fonttools/region-flags, public domain (Wikipedia).
+ *   State maps    -- Natural Earth, public domain.
  */
 #ifndef MAP_N_FLAG_H
 #define MAP_N_FLAG_H
@@ -81,8 +85,12 @@ typedef struct {
     const mnf_img_t *map;     /**< Outline, or NULL if not generated. */
 } mnf_country_t;
 
+/** One US state: abbreviation, display name, and its two images.
+ *  Layout-compatible with mnf_country_t; aliased as mnf_state_t for clarity. */
+typedef mnf_country_t mnf_state_t;
+
 /* ------------------------------------------------------------------------
- * Lookup
+ * Country lookup (unchanged)
  * ---------------------------------------------------------------------- */
 
 /** Number of countries in the table. */
@@ -105,6 +113,36 @@ const char *mnf_name(const char *iso2);
 
 /** True if the country has BOTH a flag and a map (for paired game modes). */
 bool mnf_has_both(const char *iso2);
+
+/* ------------------------------------------------------------------------
+ * US state lookup
+ *
+ * Parallel API keyed by 2-letter USPS abbreviation ("CA", "TX", "NY").
+ * Returns NULL/0/false when GENERATE_STATES was off at build time.
+ * ---------------------------------------------------------------------- */
+
+#define MNF_HAS_STATES  @@HAS_STATES@@
+
+/** Number of US states (+ DC) in the table. 0 if states were not generated. */
+size_t mnf_state_count(void);
+
+/** State at index [0, mnf_state_count()), sorted by abbreviation. */
+const mnf_state_t *mnf_state_at(size_t index);
+
+/** Look up by abbreviation, case-insensitive ("CA" or "ca"). */
+const mnf_state_t *mnf_state_find(const char *st);
+
+/** State flag for an abbreviation, or NULL. */
+const mnf_img_t *mnf_state_flag(const char *st);
+
+/** State outline for an abbreviation, or NULL. */
+const mnf_img_t *mnf_state_map(const char *st);
+
+/** State display name ("California"), or NULL. */
+const char *mnf_state_name(const char *st);
+
+/** True if the state has BOTH a flag and a map. */
+bool mnf_state_has_both(const char *st);
 
 /* ------------------------------------------------------------------------
  * Pixel access -- for drawing without LVGL (TFT_eSPI, LovyanGFX, anything)
@@ -181,8 +219,11 @@ IMPL_SOURCE = r'''/*
 extern const mnf_country_t mnf_country_table[];
 extern const uint16_t mnf_country_count;
 
+extern const mnf_state_t mnf_state_table[];
+extern const uint16_t mnf_state_count_val;
+
 /* ------------------------------------------------------------------------
- * Lookup
+ * Country lookup
  * ---------------------------------------------------------------------- */
 
 size_t mnf_count(void)
@@ -241,6 +282,67 @@ bool mnf_has_both(const char *iso2)
 {
     const mnf_country_t *c = mnf_find(iso2);
     return c != NULL && c->flag != NULL && c->map != NULL;
+}
+
+/* ------------------------------------------------------------------------
+ * US state lookup
+ * ---------------------------------------------------------------------- */
+
+size_t mnf_state_count(void)
+{
+    return (size_t)mnf_state_count_val;
+}
+
+const mnf_state_t *mnf_state_at(size_t index)
+{
+    if (index >= (size_t)mnf_state_count_val) return NULL;
+    return &mnf_state_table[index];
+}
+
+const mnf_state_t *mnf_state_find(const char *st)
+{
+    if (st == NULL || st[0] == '\0' || st[1] == '\0') return NULL;
+
+    const char key0 = (char)toupper((unsigned char)st[0]);
+    const char key1 = (char)toupper((unsigned char)st[1]);
+
+    int lo = 0;
+    int hi = (int)mnf_state_count_val - 1;
+    while (lo <= hi) {
+        const int mid = lo + (hi - lo) / 2;
+        const char *c = mnf_state_table[mid].iso2;
+        int cmp = (c[0] - key0);
+        if (cmp == 0) cmp = (c[1] - key1);
+
+        if (cmp == 0) return &mnf_state_table[mid];
+        if (cmp < 0)  lo = mid + 1;
+        else          hi = mid - 1;
+    }
+    return NULL;
+}
+
+const mnf_img_t *mnf_state_flag(const char *st)
+{
+    const mnf_state_t *s = mnf_state_find(st);
+    return s ? s->flag : NULL;
+}
+
+const mnf_img_t *mnf_state_map(const char *st)
+{
+    const mnf_state_t *s = mnf_state_find(st);
+    return s ? s->map : NULL;
+}
+
+const char *mnf_state_name(const char *st)
+{
+    const mnf_state_t *s = mnf_state_find(st);
+    return s ? s->name : NULL;
+}
+
+bool mnf_state_has_both(const char *st)
+{
+    const mnf_state_t *s = mnf_state_find(st);
+    return s != NULL && s->flag != NULL && s->map != NULL;
 }
 
 /* ------------------------------------------------------------------------

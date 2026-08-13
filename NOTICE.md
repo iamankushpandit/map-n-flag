@@ -1,12 +1,12 @@
 # Third-party artwork notices
 
 The map-n-flag **code** (pipeline, library, examples) is MIT licensed — see
-`LICENSE`. The **artwork** compiled into `src/` comes from two upstream
+`LICENSE`. The **artwork** compiled into `src/` comes from upstream
 projects with different terms. Read this before shipping anything.
 
 ---
 
-## Flags — lipis/flag-icons
+## Country flags — lipis/flag-icons
 
 - Source: <https://github.com/lipis/flag-icons>
 - License: **MIT** — Copyright (c) 2013 Panayiotis Lipiridis
@@ -17,7 +17,7 @@ palette. No other modification.
 
 ---
 
-## Map outlines — djaiss/mapsicon
+## Country map outlines — djaiss/mapsicon
 
 - Source: <https://github.com/djaiss/mapsicon>
 - Author: **David Jaiss**
@@ -50,6 +50,31 @@ are MIT so they need no changes at all.
 The following countries are absent from mapsicon and therefore have a flag but
 no outline: **FM** (Micronesia), **MH** (Marshall Islands), **PS** (Palestine),
 **TV** (Tuvalu). Upstream omits them as too small to draw.
+
+---
+
+## US state flags — fonttools/region-flags
+
+- Source: <https://github.com/fonttools/region-flags>
+- License: ✅ **Public domain.** Downloaded from Wikipedia; when originals
+  were copyrighted, the project sourced or drew new public-domain versions.
+- Status: ✅ **Unrestricted.** Commercial use is fine.
+
+The flag SVGs were rasterised to 80×60 and reduced to a 16-colour indexed
+palette. No other modification.
+
+---
+
+## US state map outlines — Natural Earth
+
+- Source: <https://www.naturalearthdata.com/>
+- Dataset: `ne_10m_admin_1_states_provinces`
+- License: ✅ **Public domain** (Open Data Commons PDDL).
+- Status: ✅ **Unrestricted.** Commercial use is fine.
+
+State outlines were extracted from the Natural Earth GeoJSON, rendered as
+alpha-ramp silhouettes, and encoded the same way as country outlines. While
+no credit is required, a link back to Natural Earth is appreciated.
 
 ---
 

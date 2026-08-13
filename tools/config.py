@@ -52,6 +52,23 @@ MAP_INK = (0x1E, 0x3A, 0x8A)
 MAP_SPECK_THRESHOLD = 0.0
 
 # ---------------------------------------------------------------------------
+# US States
+# ---------------------------------------------------------------------------
+# Set True to generate US state flags and map outlines alongside the country
+# data. Both sources are commercially safe:
+#   Flags  : fonttools/region-flags (public domain, Wikipedia-sourced)
+#   Maps   : Natural Earth admin_1  (public domain)
+#
+# Uses a parallel API: mnf_state_flag("CA"), mnf_state_map("CA"), etc.
+# State codes are 2-letter USPS abbreviations, not ISO 3166-2 "US-CA".
+GENERATE_STATES = True
+
+# Set False to omit state outline maps. Unlike the country outlines
+# (mapsicon, no resale), the state outlines come from Natural Earth (public
+# domain), so there is no commercial restriction.
+GENERATE_STATE_MAPS = True
+
+# ---------------------------------------------------------------------------
 # Output
 # ---------------------------------------------------------------------------
 # Number of .cpp files to spread the byte arrays across. More files = smaller
