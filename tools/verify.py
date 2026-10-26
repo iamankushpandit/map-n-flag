@@ -1,7 +1,7 @@
 """
 Round-trip verification for the generated library.
 
-    python tools/verify.py [--sheet out.png] [CODE ...]
+    python tools/verify.py [--sheet out.png] [--cards] [CODE ...]
 
 Parses the emitted .cpp files as text, decodes the byte arrays using LVGL's
 own I4 rules, and renders the result. This deliberately re-reads the generated
@@ -89,11 +89,34 @@ def composite(rgba: np.ndarray, bg: tuple[int, int, int]) -> Image.Image:
     return Image.fromarray(out)
 
 
+def write_sheet(tiles: list[tuple[str, Image.Image]], out: Path,
+                cols: int, bg: tuple[int, int, int]) -> None:
+    """Lay tiles out on a labelled contact sheet and save it."""
+    cell_w = max(img.width for _label, img in tiles)
+    cell_h = max(img.height for _label, img in tiles)
+    pad = 8
+    rows = (len(tiles) + cols - 1) // cols
+    sheet = Image.new("RGB", (cols * (cell_w + pad) + pad,
+                              rows * (cell_h + pad + 14) + pad), bg)
+    dr = ImageDraw.Draw(sheet)
+    for i, (label, img) in enumerate(tiles):
+        x = pad + (i % cols) * (cell_w + pad)
+        y = pad + (i // cols) * (cell_h + pad + 14)
+        sheet.paste(img, (x + (cell_w - img.width) // 2, y + (cell_h - img.height) // 2))
+        dr.text((x + 2, y + cell_h + 2), label, fill=(235, 235, 235))
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(out)
+    print(f"wrote {out}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("codes", nargs="*", help="ISO codes to put on the sheet")
     ap.add_argument("--sheet", default=str(ROOT / "build" / "verify_sheet.png"))
     ap.add_argument("--zoom", type=int, default=2)
+    ap.add_argument("--cards", action="store_true",
+                    help="put the generated deck on the sheet instead of flags")
     args = ap.parse_args()
 
     images = parse_generated()
@@ -116,12 +139,26 @@ def main() -> None:
         sys.exit(1)
     print(f"all {len(images)} images decode cleanly, {total:,} bytes total")
 
+    Z = args.zoom
+
+    if args.cards:
+        card_syms = sorted(s for s in images if s.startswith("mnf_card_"))
+        if not card_syms:
+            sys.exit("no cards in the generated sources; is GENERATE_CARDS off?")
+        tiles = []
+        for sym in card_syms:
+            rec = images[sym]
+            # Green felt, so the transparent rounded corners are visible.
+            img = composite(decode_i4(rec["w"], rec["h"], rec["data"]), (22, 92, 60))
+            tiles.append((sym.removeprefix("mnf_card_").upper(),
+                          img.resize((rec["w"] * Z, rec["h"] * Z), Image.NEAREST)))
+        write_sheet(tiles, Path(args.sheet), cols=13, bg=(22, 92, 60))
+        return
+
     codes = [c.lower() for c in args.codes] or [
         "fr", "jp", "us", "gb", "br", "in", "np", "ch", "mx", "za", "kr", "se",
     ]
 
-    Z = args.zoom
-    cell_w, cell_h = 0, 0
     tiles = []
     for code in codes:
         for kind, bg in (("flag", (255, 255, 255)), ("map", (245, 245, 248))):
@@ -129,27 +166,10 @@ def main() -> None:
             if rec is None:
                 continue
             img = composite(decode_i4(rec["w"], rec["h"], rec["data"]), bg)
-            img = img.resize((rec["w"] * Z, rec["h"] * Z), Image.NEAREST)
-            tiles.append((f"{code.upper()} {kind}", img))
-            cell_w = max(cell_w, img.width)
-            cell_h = max(cell_h, img.height)
+            tiles.append((f"{code.upper()} {kind}",
+                          img.resize((rec["w"] * Z, rec["h"] * Z), Image.NEAREST)))
 
-    cols = 6
-    rows = (len(tiles) + cols - 1) // cols
-    pad = 8
-    sheet = Image.new("RGB", (cols * (cell_w + pad) + pad,
-                              rows * (cell_h + pad + 14) + pad), (60, 60, 66))
-    dr = ImageDraw.Draw(sheet)
-    for i, (label, img) in enumerate(tiles):
-        x = pad + (i % cols) * (cell_w + pad)
-        y = pad + (i // cols) * (cell_h + pad + 14)
-        sheet.paste(img, (x + (cell_w - img.width) // 2, y + (cell_h - img.height) // 2))
-        dr.text((x + 2, y + cell_h + 2), label, fill=(235, 235, 235))
-
-    out = Path(args.sheet)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    sheet.save(out)
-    print(f"wrote {out}")
+    write_sheet(tiles, Path(args.sheet), cols=6, bg=(60, 60, 66))
 
 
 if __name__ == "__main__":

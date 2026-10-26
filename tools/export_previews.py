@@ -10,6 +10,7 @@ previews show exactly what the device will draw. Writes:
     docs/previews/maps/<CODE>.png          country outline centred
     docs/previews/state_flags/<CODE>.png   US state flag on white, 1px border
     docs/previews/state_maps/<CODE>.png    US state outline centred
+    docs/previews/cards/<CODE>.png         card face on felt green, BK is the back
 
 and rewrites the tables in README.md between the GALLERY markers.
 """
@@ -24,6 +25,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).parent))
 import config  # noqa: E402
 from verify import decode_i4, parse_generated  # noqa: E402
+from cards_data import RANKS, SUITS  # noqa: E402
 from countries_data import COUNTRIES  # noqa: E402
 from states_data import US_STATES  # noqa: E402
 
@@ -35,10 +37,15 @@ START = "<!-- GALLERY:START -->"
 END = "<!-- GALLERY:END -->"
 STATE_START = "<!-- STATE_GALLERY:START -->"
 STATE_END = "<!-- STATE_GALLERY:END -->"
+CARD_START = "<!-- CARD_GALLERY:START -->"
+CARD_END = "<!-- CARD_GALLERY:END -->"
 
 FLAG_BG = (255, 255, 255)
 MAP_BG = (255, 255, 255)
 BORDER = (205, 205, 212)
+# Cards have transparent rounded corners, so they go on felt rather than white
+# -- on white the corners would read as square.
+CARD_BG = (22, 92, 60)
 
 
 def composite_on(rgba: np.ndarray, bg: tuple[int, int, int]) -> Image.Image:
@@ -117,6 +124,65 @@ def export_set(
     return rows, n_written, total_bytes
 
 
+def export_cards(images: dict) -> tuple[list[str], int, int]:
+    """Export one PNG per card face plus the back. Returns (codes, n, bytes)."""
+    card_dir = PREVIEW_DIR / "cards"
+    card_dir.mkdir(parents=True, exist_ok=True)
+
+    codes = []
+    n_written = 0
+    total_bytes = 0
+    for sym in sorted(images):
+        if not sym.startswith("mnf_card_"):
+            continue
+        code = sym.removeprefix("mnf_card_").upper()
+        rec = images[sym]
+        im = composite_on(decode_i4(rec["w"], rec["h"], rec["data"]), CARD_BG)
+        p = card_dir / f"{code}.png"
+        im.save(p, optimize=True)
+        total_bytes += p.stat().st_size
+        n_written += 1
+        codes.append(code)
+    return codes, n_written, total_bytes
+
+
+def card_gallery(codes: list[str]) -> list[str]:
+    """A rank x suit table of the exported card previews."""
+    present = set(codes)
+    ranks = [r for r, _name, _v in RANKS]
+    rank_names = {r: name for r, name, _v in RANKS}
+
+    lines = [
+        f"The full deck, {config.CARD_W}x{config.CARD_H} each, decoded from the "
+        f"generated C arrays. Corners are transparent, so they are shown here on "
+        f"felt green rather than white.",
+        "",
+        "| Suit | " + " | ".join(ranks) + " |",
+        "|:----:|" + "|".join([":--:"] * len(ranks)) + "|",
+    ]
+    for suit_char, suit_name, _red in SUITS:
+        cells = []
+        for rank in ranks:
+            code = rank + suit_char
+            cells.append(
+                f'<img src="docs/previews/cards/{code}.png" '
+                f'width="{config.CARD_W}" alt="{rank_names[rank]} of {suit_name}">'
+                if code in present else "—"
+            )
+        lines.append(f"| **{suit_name}** | " + " | ".join(cells) + " |")
+
+    extra = {"BK": "Card back", "ZR": "Red joker", "ZB": "Black joker"}
+    shown = [c for c in extra if c in present]
+    if shown:
+        imgs = " ".join(
+            f'<img src="docs/previews/cards/{c}.png" '
+            f'width="{config.CARD_W}" alt="{extra[c]}">' for c in shown
+        )
+        label = "Back" if shown == ["BK"] else "Back and jokers"
+        lines += ["", f"{label}: {imgs}"]
+    return lines
+
+
 def main() -> None:
     images = parse_generated()
     print(f"parsed {len(images)} images")
@@ -151,7 +217,11 @@ def main() -> None:
         "docs/previews/state_flags", "docs/previews/state_maps",
     )
     print(f"states:    {n2} PNGs, {b2/1024:.0f} KiB")
-    print(f"total:     {n1+n2} PNGs, {(b1+b2)/1024:.0f} KiB")
+
+    # --- cards ------------------------------------------------------------
+    card_codes, n3, b3 = export_cards(images)
+    print(f"cards:     {n3} PNGs, {b3/1024:.0f} KiB")
+    print(f"total:     {n1+n2+n3} PNGs, {(b1+b2+b3)/1024:.0f} KiB")
 
     # --- build country gallery markdown -----------------------------------
     country_md = [
@@ -190,8 +260,14 @@ def main() -> None:
         _, tail = rest.split(STATE_END, 1)
         text = f"{head}{STATE_START}\n\n" + "\n".join(state_md_lines) + f"\n\n{STATE_END}{tail}"
 
+    if CARD_START in text and CARD_END in text:
+        head, rest = text.split(CARD_START, 1)
+        _, tail = rest.split(CARD_END, 1)
+        text = f"{head}{CARD_START}\n\n" + "\n".join(card_gallery(card_codes)) + f"\n\n{CARD_END}{tail}"
+
     README.write_text(text, encoding="utf-8")
-    print(f"updated {README} gallery ({len(country_rows)} countries, {len(state_rows)} states)")
+    print(f"updated {README} gallery ({len(country_rows)} countries, "
+          f"{len(state_rows)} states, {len(card_codes)} cards)")
 
 
 if __name__ == "__main__":

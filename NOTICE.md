@@ -1,8 +1,9 @@
 # Third-party artwork notices
 
 The map-n-flag **code** (pipeline, library, examples) is MIT licensed — see
-`LICENSE`. The **artwork** compiled into `src/` comes from upstream
-projects with different terms. Read this before shipping anything.
+`LICENSE`. Most of the **artwork** compiled into `src/` comes from upstream
+projects with different terms; the playing cards are drawn by this repo's own
+tooling. Read this before shipping anything.
 
 ---
 
@@ -39,6 +40,18 @@ palette. No other modification.
 State outlines were extracted from the Natural Earth GeoJSON, rendered as
 alpha-ramp silhouettes, and encoded as 4-bit indexed images. While
 no credit is required, a link back to Natural Earth is appreciated.
+
+---
+
+## Playing cards — no third party involved
+
+- Source: [`tools/render_cards.py`](tools/render_cards.py) in this repo.
+- License: **MIT**, same as the rest of the code here.
+- Status: ✅ **Unrestricted.** Commercial use is fine.
+
+The deck is drawn from vector primitives -- parametric curves for the pips,
+stroke paths for the rank glyphs -- with no upstream SVG set and no font
+embedded or traced. There is nothing to attribute.
 
 ---
 

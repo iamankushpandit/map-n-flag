@@ -1,7 +1,7 @@
 {
   "name": "map-n-flag",
-  "version": "1.0.0",
-  "description": "ISO 3166-1 country flags and map silhouettes baked into flash as C++ arrays for ESP32. 4-bit indexed images, zero RAM cost, no runtime SVG parsing and no SD card. Works with TFT_eSPI/LovyanGFX directly or with LVGL v8/v9 via an optional adapter.",
+  "version": "1.1.0",
+  "description": "ISO 3166-1 country flags, map silhouettes, US state flags and a full 52-card playing deck baked into flash as C++ arrays for ESP32. 4-bit indexed images, zero RAM cost, no runtime SVG parsing and no SD card. Works with TFT_eSPI/LovyanGFX directly or with LVGL v8/v9 via an optional adapter.",
   "keywords": [
     "flags",
     "maps",
@@ -11,6 +11,8 @@
     "tft",
     "esp32",
     "graphics",
+    "cards",
+    "playing-cards",
     "quiz"
   ],
   "authors": [

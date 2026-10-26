@@ -11,6 +11,10 @@ extern const uint16_t mnf_country_count;
 extern const mnf_state_t mnf_state_table[];
 extern const uint16_t mnf_state_count_val;
 
+extern const mnf_card_t mnf_card_table[];
+extern const uint16_t mnf_card_count_val;
+extern const mnf_img_t *const mnf_card_back_img;
+
 /* ------------------------------------------------------------------------
  * Country lookup
  * ---------------------------------------------------------------------- */
@@ -132,6 +136,82 @@ bool mnf_state_has_both(const char *st)
 {
     const mnf_state_t *s = mnf_state_find(st);
     return s != NULL && s->flag != NULL && s->map != NULL;
+}
+
+/* ------------------------------------------------------------------------
+ * Playing card lookup
+ * ---------------------------------------------------------------------- */
+
+size_t mnf_card_count(void)
+{
+    return (size_t)mnf_card_count_val;
+}
+
+const mnf_card_t *mnf_card_at(size_t index)
+{
+    if (index >= (size_t)mnf_card_count_val) return NULL;
+    return &mnf_card_table[index];
+}
+
+const mnf_card_t *mnf_card_find(const char *code)
+{
+    if (code == NULL || code[0] == '\0' || code[1] == '\0') return NULL;
+
+    /* Codes are upper-case ASCII, so the table's plain char ordering is the
+     * same ordering the generator sorted by. */
+    const char key0 = (char)toupper((unsigned char)code[0]);
+    const char key1 = (char)toupper((unsigned char)code[1]);
+
+    int lo = 0;
+    int hi = (int)mnf_card_count_val - 1;
+    while (lo <= hi) {
+        const int mid = lo + (hi - lo) / 2;
+        const char *c = mnf_card_table[mid].code;
+        int cmp = (c[0] - key0);
+        if (cmp == 0) cmp = (c[1] - key1);
+
+        if (cmp == 0) return &mnf_card_table[mid];
+        if (cmp < 0)  lo = mid + 1;
+        else          hi = mid - 1;
+    }
+    return NULL;
+}
+
+const mnf_card_t *mnf_card_by(uint8_t rank, uint8_t suit)
+{
+    /* 52 entries and the table is sorted by code, not by value, so a linear
+     * scan is both the simplest and the smallest thing that works. */
+    for (uint16_t i = 0; i < mnf_card_count_val; i++) {
+        if (mnf_card_table[i].rank == rank && mnf_card_table[i].suit == suit) {
+            return &mnf_card_table[i];
+        }
+    }
+    return NULL;
+}
+
+const mnf_img_t *mnf_card(const char *code)
+{
+    const mnf_card_t *c = mnf_card_find(code);
+    return c ? c->img : NULL;
+}
+
+const char *mnf_card_name(const char *code)
+{
+    const mnf_card_t *c = mnf_card_find(code);
+    return c ? c->name : NULL;
+}
+
+const mnf_img_t *mnf_card_back(void)
+{
+    return mnf_card_back_img;
+}
+
+bool mnf_card_is_red(const mnf_card_t *card)
+{
+    if (card == NULL) return false;
+    if (card->suit == MNF_SUIT_HEARTS || card->suit == MNF_SUIT_DIAMONDS) return true;
+    /* Jokers carry no suit; the red one is "ZR". */
+    return card->suit == MNF_SUIT_NONE && card->code != NULL && card->code[1] == 'R';
 }
 
 /* ------------------------------------------------------------------------

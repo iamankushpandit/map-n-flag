@@ -59,6 +59,28 @@ GENERATE_STATES = True
 GENERATE_STATE_MAPS = True
 
 # ---------------------------------------------------------------------------
+# Playing cards
+# ---------------------------------------------------------------------------
+# Set True to generate a standard 52-card deck plus a card back. The artwork
+# is drawn from vector primitives by tools/render_cards.py -- no upstream SVGs,
+# no font, and therefore nothing to attribute or license.
+#
+# Uses a parallel API: mnf_card("AS"), mnf_card_back(), etc. A card code is
+# rank then suit: ranks A 2-9 T J Q K, suits S H D C ("TD" is the ten of
+# diamonds).
+GENERATE_CARDS = True
+
+# 48x64 is a 0.75 aspect, close to a real 2.5x3.5" card, and costs 1,600 B per
+# card -- a full deck plus back is ~83 KiB. Corner ranks stop being readable
+# below about 40x56; above 64x88 you are paying flash for very little.
+CARD_W = 48
+CARD_H = 64
+
+# Add the two jokers ("ZR" red, "ZB" black). Off by default: most games do not
+# need them, and each one is another 1,600 B.
+CARD_JOKERS = False
+
+# ---------------------------------------------------------------------------
 # Output
 # ---------------------------------------------------------------------------
 # Number of .cpp files to spread the byte arrays across. More files = smaller

@@ -15,6 +15,7 @@
  *
  *     static mnf_lv_dsc_t flag_slot;
  *     lv_img_set_src(img, mnf_lv_bind(&flag_slot, mnf_flag("FR")));
+ *     lv_img_set_src(card, mnf_lv_bind(&card_slot, mnf_card("AS")));
  *
  * Works on LVGL v8 and v9; the descriptor struct differs between them and
  * that difference is handled below.
@@ -44,7 +45,7 @@ typedef lv_img_dsc_t mnf_lv_dsc_t;
  * Point an LVGL descriptor at a map-n-flag image.
  *
  * @param slot  caller-owned descriptor; must stay alive while LVGL uses it
- * @param img   result of mnf_flag() / mnf_map(), may be NULL
+ * @param img   result of mnf_flag() / mnf_map() / mnf_card(), may be NULL
  * @return      slot, or NULL if either argument was NULL
  */
 static inline const mnf_lv_dsc_t *mnf_lv_bind(mnf_lv_dsc_t *slot, const mnf_img_t *img)
