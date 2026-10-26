@@ -6,6 +6,7 @@
   "scripts": {
     "fetch": "python tools/fetch_sources.py",
     "build": "python tools/build.py",
+    "cards": "python tools/build.py --cards-only",
     "report": "python tools/build.py --report",
     "verify": "python tools/verify.py"
   },

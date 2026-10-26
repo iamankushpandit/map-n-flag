@@ -1,9 +1,9 @@
 # map-n-flag
 
-Country flags and map silhouettes for **195 countries** plus **51 US states**
-(+ DC), baked into flash as plain C++ arrays for the ESP32. No runtime SVG
-parsing, no SD card, no external asset loading — everything is `const` data in
-`.rodata`.
+Country flags and map silhouettes for **195 countries**, **51 US states**
+(+ DC) and a full **52-card deck**, baked into flash as plain C++ arrays for the
+ESP32. No runtime SVG parsing, no SD card, no external asset loading —
+everything is `const` data in `.rodata`.
 
 Built for a 320×240 ESP32 "Cheap Yellow Display" (ILI9341, 4 MB flash, no PSRAM),
 but there is nothing board-specific in the library.
@@ -13,6 +13,8 @@ but there is nothing board-specific in the library.
   TFT_eSPI, LovyanGFX, or anything else. LVGL v8/v9 support is an optional header.
 - **1.09 MiB** of flash for all 195 flags *and* 191 outlines.
 - **280 KiB** more for 51 US state flags and outlines (opt-in, both commercially safe).
+- **85 KiB** more for the 52-card deck and its back (opt-in, drawn here, so
+  there is nothing to attribute).
 
 ```cpp
 #include "map_n_flag.h"
@@ -25,6 +27,11 @@ const char      *name = mnf_name("FR");   // "France"
 const mnf_img_t *sf = mnf_state_flag("CA");   // California flag
 const mnf_img_t *sm = mnf_state_map("CA");    // California outline
 const char      *sn = mnf_state_name("CA");   // "California"
+
+// Playing cards -- rank then suit, 48x64, transparent corners
+const mnf_img_t *card = mnf_card("AS");       // ace of spades
+const mnf_img_t *back = mnf_card_back();      // the card back
+const char      *cn   = mnf_card_name("TD");  // "Ten of Diamonds"
 ```
 
 ---
@@ -120,6 +127,82 @@ bool                 mnf_state_has_both(const char *st);
 pixel access functions (`mnf_row_rgb565`, `mnf_row_rgb565_tint`, etc.) work
 identically with state images.
 
+### Playing card API
+
+A full 52-card deck plus a card back, in the same image format. Cards are keyed
+by a 2-character code — rank then suit — so lookup is the same binary search:
+
+```
+rank  A 2 3 4 5 6 7 8 9 T J Q K      T is the ten
+suit  S H D C                        spades hearts diamonds clubs
+```
+
+`"AS"` is the ace of spades, `"TD"` the ten of diamonds. All functions return
+`NULL`/`0` if `GENERATE_CARDS` was off at build time.
+
+```cpp
+// --- playing cards ------------------------------------------------------
+size_t            mnf_card_count(void);                      // 52
+const mnf_card_t *mnf_card_at(size_t index);                 // sorted by code
+const mnf_card_t *mnf_card_find(const char *code);           // "AS" or "as"
+const mnf_card_t *mnf_card_by(uint8_t rank, uint8_t suit);   // 1-13, MNF_SUIT_*
+const mnf_img_t  *mnf_card(const char *code);                // the face
+const char       *mnf_card_name(const char *code);           // "Ace of Spades"
+const mnf_img_t  *mnf_card_back(void);                       // the back
+bool              mnf_card_is_red(const mnf_card_t *card);
+```
+
+```cpp
+typedef struct {
+    const char *code;         // "AS"
+    const char *name;         // "Ace of Spades"
+    const mnf_img_t *img;     // the face, NULL if not generated
+    uint8_t rank;             // 1 = ace ... 13 = king, 0 for a joker
+    uint8_t suit;             // MNF_SUIT_SPADES / HEARTS / DIAMONDS / CLUBS
+} mnf_card_t;
+```
+
+Unlike flags, card corners are **transparent** — palette slot 0 — so the rounded
+corners composite onto whatever is behind them. Draw with `mnf_row_rgb565()` and
+pass your table colour as `bg565`:
+
+```cpp
+static uint16_t row[MNF_CARD_WIDTH];
+const uint16_t felt = mnf_rgb565(0x16, 0x5C, 0x3C);
+
+void draw_card(const char *code, int16_t x, int16_t y) {
+    const mnf_img_t *c = mnf_card(code);
+    if (!c) return;
+    for (uint16_t ry = 0; ry < c->h; ry++) {
+        mnf_row_rgb565(c, ry, row, felt);
+        tft.pushImage(x, y + ry, c->w, 1, row);
+    }
+}
+```
+
+Dealing a shuffled deck is index arithmetic over the sorted table — there is no
+deck object and nothing to allocate:
+
+```cpp
+uint8_t order[52];
+for (uint8_t i = 0; i < 52; i++) order[i] = i;
+for (uint8_t i = 51; i > 0; i--) {            // Fisher-Yates
+    uint8_t j = random(i + 1);
+    uint8_t t = order[i]; order[i] = order[j]; order[j] = t;
+}
+const mnf_card_t *top = mnf_card_at(order[0]);
+Serial.println(top->name);
+```
+
+See [examples/CardDemo](examples/CardDemo/CardDemo.ino) for a complete sketch.
+
+The artwork is drawn by `tools/render_cards.py` from vector primitives — no
+upstream SVG set, no font — so the deck adds nothing to attribute. At 48x64 a
+card is 1,600 bytes; the deck, its back and the lookup table come to **85.0 KiB**.
+There is no court-card art at this size: jacks, queens and kings show a large
+rank letter over their suit, which stays readable where a miniature portrait
+would not.
+
 ### Drawing with TFT_eSPI (no LVGL)
 
 Decode one row at a time straight from flash — no framebuffer, ~192 bytes of
@@ -206,6 +289,15 @@ Measured with `xtensa-esp32-elf-size` on compiled objects, not estimated.
 | State outlines @ ≤96 px | 51 | 157.9 KiB |
 | **State total** | **102** | **280.6 KiB (0.27 MiB)** |
 
+### Playing cards (opt-in)
+
+| | Count | Flash |
+|---|---|---|
+| Card faces @ 48×64 | 52 | 81.3 KiB |
+| Card back @ 48×64 | 1 | 1.6 KiB |
+| Lookup table + descriptors | — | 2.2 KiB |
+| **Card total** | **53** | **85.0 KiB** |
+
 | | Flash |
 |---|---|
 | Code (`.text`) | ~1.5 KiB |
@@ -249,9 +341,22 @@ Everything adjustable lives in [`tools/config.py`](tools/config.py):
 | `TU_SPLIT` | `4` | Number of generated `.cpp` files |
 | `GENERATE_STATES` | `True` | Include US state flags and maps |
 | `GENERATE_STATE_MAPS` | `True` | Include state outline maps |
+| `GENERATE_CARDS` | `True` | Include the playing-card deck |
+| `CARD_W` / `CARD_H` | `48` / `64` | Card resolution |
+| `CARD_JOKERS` | `False` | Add the two jokers, `"ZR"` and `"ZB"` |
 
 US states add ~280 KiB (122.7 KiB flags + 157.9 KiB maps). Set
-`GENERATE_STATES = False` to exclude them entirely.
+`GENERATE_STATES = False` to exclude them entirely. Playing cards add 85.0 KiB;
+set `GENERATE_CARDS = False` to drop them.
+
+Cards need no upstream artwork, so they can be rebuilt on their own without
+cloning the flag repos — useful when you are only retuning `CARD_W`/`CARD_H`:
+
+```bash
+python tools/render_cards.py --sheet build/cards.png   # draw and eyeball them
+python tools/build.py --cards-only                     # regenerate just the deck
+python tools/verify.py --cards --sheet build/deck.png  # decode the result back
+```
 
 ---
 
@@ -309,10 +414,12 @@ The **artwork** comes from the following upstream projects:
 | Country flags | [lipis/flag-icons](https://github.com/lipis/flag-icons) | **MIT** | ✅ Yes |
 | US state flags | [fonttools/region-flags](https://github.com/fonttools/region-flags) | **Public domain** | ✅ Yes |
 | US state outlines | [Natural Earth](https://www.naturalearthdata.com/) | **Public domain** | ✅ Yes |
+| Playing cards | drawn by `tools/render_cards.py` | **MIT** (this repo) | ✅ Yes |
 
 All artwork used in this library is commercially safe. Country flags are MIT
-licensed, US state flags are public domain, and US state outlines come from
-Natural Earth (public domain).
+licensed, US state flags are public domain, US state outlines come from Natural
+Earth (public domain), and the playing cards are drawn from vector primitives in
+this repo, so they carry no upstream licence at all.
 
 ---
 
@@ -584,6 +691,23 @@ All 51 US states (+ DC). Same format as above.
 
 <!-- STATE_GALLERY:END -->
 
+### Playing cards
+
+<!-- CARD_GALLERY:START -->
+
+The full deck, 48x64 each, decoded from the generated C arrays. Corners are transparent, so they are shown here on felt green rather than white.
+
+| Suit | A | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | T | J | Q | K |
+|:----:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| **Spades** | <img src="docs/previews/cards/AS.png" width="48" alt="Ace of Spades"> | <img src="docs/previews/cards/2S.png" width="48" alt="Two of Spades"> | <img src="docs/previews/cards/3S.png" width="48" alt="Three of Spades"> | <img src="docs/previews/cards/4S.png" width="48" alt="Four of Spades"> | <img src="docs/previews/cards/5S.png" width="48" alt="Five of Spades"> | <img src="docs/previews/cards/6S.png" width="48" alt="Six of Spades"> | <img src="docs/previews/cards/7S.png" width="48" alt="Seven of Spades"> | <img src="docs/previews/cards/8S.png" width="48" alt="Eight of Spades"> | <img src="docs/previews/cards/9S.png" width="48" alt="Nine of Spades"> | <img src="docs/previews/cards/TS.png" width="48" alt="Ten of Spades"> | <img src="docs/previews/cards/JS.png" width="48" alt="Jack of Spades"> | <img src="docs/previews/cards/QS.png" width="48" alt="Queen of Spades"> | <img src="docs/previews/cards/KS.png" width="48" alt="King of Spades"> |
+| **Hearts** | <img src="docs/previews/cards/AH.png" width="48" alt="Ace of Hearts"> | <img src="docs/previews/cards/2H.png" width="48" alt="Two of Hearts"> | <img src="docs/previews/cards/3H.png" width="48" alt="Three of Hearts"> | <img src="docs/previews/cards/4H.png" width="48" alt="Four of Hearts"> | <img src="docs/previews/cards/5H.png" width="48" alt="Five of Hearts"> | <img src="docs/previews/cards/6H.png" width="48" alt="Six of Hearts"> | <img src="docs/previews/cards/7H.png" width="48" alt="Seven of Hearts"> | <img src="docs/previews/cards/8H.png" width="48" alt="Eight of Hearts"> | <img src="docs/previews/cards/9H.png" width="48" alt="Nine of Hearts"> | <img src="docs/previews/cards/TH.png" width="48" alt="Ten of Hearts"> | <img src="docs/previews/cards/JH.png" width="48" alt="Jack of Hearts"> | <img src="docs/previews/cards/QH.png" width="48" alt="Queen of Hearts"> | <img src="docs/previews/cards/KH.png" width="48" alt="King of Hearts"> |
+| **Diamonds** | <img src="docs/previews/cards/AD.png" width="48" alt="Ace of Diamonds"> | <img src="docs/previews/cards/2D.png" width="48" alt="Two of Diamonds"> | <img src="docs/previews/cards/3D.png" width="48" alt="Three of Diamonds"> | <img src="docs/previews/cards/4D.png" width="48" alt="Four of Diamonds"> | <img src="docs/previews/cards/5D.png" width="48" alt="Five of Diamonds"> | <img src="docs/previews/cards/6D.png" width="48" alt="Six of Diamonds"> | <img src="docs/previews/cards/7D.png" width="48" alt="Seven of Diamonds"> | <img src="docs/previews/cards/8D.png" width="48" alt="Eight of Diamonds"> | <img src="docs/previews/cards/9D.png" width="48" alt="Nine of Diamonds"> | <img src="docs/previews/cards/TD.png" width="48" alt="Ten of Diamonds"> | <img src="docs/previews/cards/JD.png" width="48" alt="Jack of Diamonds"> | <img src="docs/previews/cards/QD.png" width="48" alt="Queen of Diamonds"> | <img src="docs/previews/cards/KD.png" width="48" alt="King of Diamonds"> |
+| **Clubs** | <img src="docs/previews/cards/AC.png" width="48" alt="Ace of Clubs"> | <img src="docs/previews/cards/2C.png" width="48" alt="Two of Clubs"> | <img src="docs/previews/cards/3C.png" width="48" alt="Three of Clubs"> | <img src="docs/previews/cards/4C.png" width="48" alt="Four of Clubs"> | <img src="docs/previews/cards/5C.png" width="48" alt="Five of Clubs"> | <img src="docs/previews/cards/6C.png" width="48" alt="Six of Clubs"> | <img src="docs/previews/cards/7C.png" width="48" alt="Seven of Clubs"> | <img src="docs/previews/cards/8C.png" width="48" alt="Eight of Clubs"> | <img src="docs/previews/cards/9C.png" width="48" alt="Nine of Clubs"> | <img src="docs/previews/cards/TC.png" width="48" alt="Ten of Clubs"> | <img src="docs/previews/cards/JC.png" width="48" alt="Jack of Clubs"> | <img src="docs/previews/cards/QC.png" width="48" alt="Queen of Clubs"> | <img src="docs/previews/cards/KC.png" width="48" alt="King of Clubs"> |
+
+Back: <img src="docs/previews/cards/BK.png" width="48" alt="Card back">
+
+<!-- CARD_GALLERY:END -->
+
 ---
 
 ## Credits
@@ -592,3 +716,4 @@ All 51 US states (+ DC). Same format as above.
 - US state flags — [fonttools/region-flags](https://github.com/fonttools/region-flags),
   public domain (Wikipedia).
 - US state outlines — [Natural Earth](https://www.naturalearthdata.com/), public domain.
+- Playing cards — drawn by [`tools/render_cards.py`](tools/render_cards.py); no upstream artwork.

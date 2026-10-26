@@ -30,6 +30,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).parent))
 import config  # noqa: E402
+from cards_data import deck as card_deck  # noqa: E402
 from countries_data import COUNTRIES  # noqa: E402
 from states_data import US_STATES  # noqa: E402
 from templates import HEADER_TEMPLATE, IMPL_SOURCE  # noqa: E402
@@ -38,6 +39,7 @@ ROOT = Path(__file__).resolve().parent.parent
 FLAG_SVG_DIR = ROOT / "vendor" / "flag-icons" / "flags" / "4x3"
 STATE_FLAG_SVG_DIR = ROOT / "vendor" / "region-flags" / "svg"
 STATE_MAP_DIR = ROOT / "build" / "state_maps"
+CARD_DIR = ROOT / "build" / "cards"
 BUILD_DIR = ROOT / "build"
 OUT_DIR = ROOT / "src"
 
@@ -170,6 +172,16 @@ def load_flag(code: str, raw_dir: Path) -> Indexed | None:
     return quantize_rgba(rgba)
 
 
+def load_card(code: str, card_dir: Path) -> Indexed | None:
+    """Load a rendered card face. The rounded corners are transparent, so slot
+    0 of the palette is reserved for them by quantize_rgba()."""
+    p = card_dir / f"{code}.png"
+    if not p.exists():
+        return None
+    im = Image.open(p).convert("RGBA")
+    return quantize_rgba(np.asarray(im, dtype=np.uint8))
+
+
 def load_state_map(code: str, state_map_dir: Path) -> Indexed | None:
     p = state_map_dir / f"{code}.png"
     if not p.exists():
@@ -197,6 +209,7 @@ ATTRIBUTION = """/*
  * Country flag artwork:  lipis/flag-icons          -- MIT License.
  * State flag artwork:    fonttools/region-flags     -- public domain (Wikipedia).
  * State map artwork:     Natural Earth              -- public domain.
+ * Playing cards:         drawn by tools/render_cards.py -- no upstream art.
  */
 """
 
@@ -275,6 +288,45 @@ def emit_state_tables(
         f.write(f"extern const uint16_t mnf_state_count_val = {len(state_rows)};\n")
 
 
+def emit_card_table(card_rows: list[dict], card_syms: dict, back_sym: str | None) -> None:
+    path = OUT_DIR / "mnf_card_table.cpp"
+    with path.open("w", encoding="utf-8") as f:
+        f.write(ATTRIBUTION)
+        f.write('\n#include "map_n_flag.h"\n\n')
+
+        for code, sym in sorted(card_syms.items()):
+            f.write(f"extern const mnf_img_t {sym};\n")
+        if back_sym:
+            f.write(f"extern const mnf_img_t {back_sym};\n")
+
+        f.write("\n/* Sorted by card code so lookup can binary-search. */\n")
+        f.write("extern const mnf_card_t mnf_card_table[] = {\n")
+        for r in card_rows:
+            code = r["code"]
+            img = f"&{card_syms[code]}" if code in card_syms else "NULL"
+            name = r["name"].replace('"', '\\"')
+            f.write(f'    {{ "{code}", "{name}", {img}, '
+                    f'{r["rank"]}, {r["suit"]} }},\n')
+        f.write("};\n\n")
+        f.write(f"extern const uint16_t mnf_card_count_val = {len(card_rows)};\n")
+        f.write("extern const mnf_img_t *const mnf_card_back_img = "
+                f"{'&' + back_sym if back_sym else 'NULL'};\n")
+
+
+def emit_empty_card_table() -> None:
+    """Emit a stub card table when GENERATE_CARDS is off."""
+    path = OUT_DIR / "mnf_card_table.cpp"
+    with path.open("w", encoding="utf-8") as f:
+        f.write(ATTRIBUTION)
+        f.write('\n#include "map_n_flag.h"\n\n')
+        # Fully spelled out rather than { {0} }, so the stub stays quiet
+        # under -Wextra (-Wmissing-field-initializers).
+        f.write("extern const mnf_card_t mnf_card_table[] = "
+                "{ { NULL, NULL, NULL, 0, 0 } };\n")
+        f.write("extern const uint16_t mnf_card_count_val = 0;\n")
+        f.write("extern const mnf_img_t *const mnf_card_back_img = NULL;\n")
+
+
 def emit_empty_state_table() -> None:
     """Emit a stub state table when GENERATE_STATES is off."""
     path = OUT_DIR / "mnf_state_table.cpp"
@@ -285,7 +337,8 @@ def emit_empty_state_table() -> None:
         f.write("extern const uint16_t mnf_state_count_val = 0;\n")
 
 
-def emit_header(rows: list[dict], stats: dict, state_stats: dict) -> None:
+def emit_header(rows: list[dict], stats: dict, state_stats: dict,
+                card_stats: dict) -> None:
     """Render the public header.
 
     Token replacement rather than str.format(), because the template is full of
@@ -311,6 +364,11 @@ def emit_header(rows: list[dict], stats: dict, state_stats: dict) -> None:
         "@@STATE_MAP_KIB@@": f"{state_stats['map_bytes'] / 1024:.1f}",
         "@@STATE_TOTAL_KIB@@": f"{st_total / 1024:.1f}",
         "@@HAS_STATES@@": "1" if state_stats["n_states"] > 0 else "0",
+        "@@CARD_W@@": str(card_w()),
+        "@@CARD_H@@": str(card_h()),
+        "@@N_CARDS@@": str(card_stats["n_cards"]),
+        "@@CARD_KIB@@": f"{card_stats['card_bytes'] / 1024:.1f}",
+        "@@HAS_CARDS@@": "1" if card_stats["n_cards"] > 0 else "0",
     }
     text = HEADER_TEMPLATE
     for k, v in subs.items():
@@ -336,6 +394,77 @@ def select_states() -> list[dict]:
     return [{"code": abbr, "name": name} for abbr, name in US_STATES]
 
 
+def card_w() -> int:
+    return int(getattr(config, "CARD_W", 48))
+
+
+def card_h() -> int:
+    return int(getattr(config, "CARD_H", 64))
+
+
+def render_cards() -> None:
+    """Run render_cards.py to draw the deck at the configured card size."""
+    script = ROOT / "tools" / "render_cards.py"
+    cmd = [sys.executable, str(script),
+           "--w", str(card_w()), "--h", str(card_h()),
+           "--out", str(CARD_DIR)]
+    if getattr(config, "CARD_JOKERS", False):
+        cmd.append("--jokers")
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        print(f"WARNING: card renderer failed:\n{proc.stderr}")
+    else:
+        for line in proc.stdout.strip().splitlines():
+            print(f"  {line}")
+
+
+def build_cards() -> tuple[list[dict], list, Indexed | None, dict]:
+    """Render and convert the deck. Returns (rows, items, back, stats)."""
+    rows = card_deck(jokers=getattr(config, "CARD_JOKERS", False))
+    print(f"playing cards: {len(rows)} + back, {card_w()}x{card_h()}")
+    render_cards()
+
+    items = []
+    for r in rows:
+        img = load_card(r["code"], CARD_DIR)
+        if img is not None:
+            items.append((r["code"], img, pack_i4(img)))
+
+    back = load_card("BK", CARD_DIR)
+    card_bytes = sum(len(b) for _, _, b in items)
+    if back is not None:
+        card_bytes += len(pack_i4(back))
+
+    stats = {"n_cards": len(items), "card_bytes": card_bytes,
+             "has_back": back is not None}
+
+    print()
+    print("=" * 62)
+    print("  PLAYING CARDS")
+    print(f"  Cards : {len(items):3d} images  {card_bytes:8,d} B  "
+          f"{card_bytes/1024:8.1f} KiB  "
+          f"({card_bytes/max(1,len(items)+1):.0f} B avg, back included)")
+    print("=" * 62)
+    print()
+    return rows, items, back, stats
+
+
+def emit_cards(rows: list[dict], items: list, back: Indexed | None) -> None:
+    """Write the card byte arrays and the lookup table."""
+    for old in OUT_DIR.glob("mnf_card_data_*.cpp"):
+        old.unlink()
+
+    all_items = list(items)
+    back_sym = None
+    if back is not None:
+        all_items.append(("BK", back, pack_i4(back)))
+        back_sym = "mnf_card_bk"
+
+    syms = dict(emit_data_files("card", all_items))
+    syms.pop("BK", None)
+    emit_card_table(rows, syms, back_sym)
+
+
 def rasterise_state_maps() -> None:
     """Run render_state_maps.py to generate state outline PNGs."""
     script = ROOT / "tools" / "render_state_maps.py"
@@ -357,10 +486,28 @@ def main() -> None:
     ap.add_argument("--report", action="store_true", help="size report only, write nothing")
     ap.add_argument("--scope", choices=["all", "un195", "curated"],
                     help="override config.SCOPE for this run (handy with --report)")
+    ap.add_argument("--cards-only", action="store_true",
+                    help="regenerate just the playing cards; leaves the flag and "
+                         "map sources, the header and map_n_flag.cpp untouched. "
+                         "Needs no vendor/ artwork, since cards are drawn here.")
     args = ap.parse_args()
 
     if args.scope:
         config.SCOPE = args.scope
+
+    if args.cards_only:
+        if not getattr(config, "GENERATE_CARDS", False):
+            sys.exit("GENERATE_CARDS is off in tools/config.py, nothing to do.")
+        rows, items, back, _stats = build_cards()
+        if args.report:
+            print("--report given, nothing written.")
+            return
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+        emit_cards(rows, items, back)
+        print(f"wrote card sources to {OUT_DIR}")
+        print("NOTE: map_n_flag.h still carries the card counts from the last "
+              "full build; run `python tools/build.py` to refresh them.")
+        return
 
     if not FLAG_SVG_DIR.is_dir():
         sys.exit(f"Missing {FLAG_SVG_DIR}. Run: python tools/fetch_sources.py")
@@ -500,6 +647,16 @@ def main() -> None:
             print(f"  no state map: {', '.join(missing_state_maps)}")
         print()
 
+    # --- playing cards ----------------------------------------------------
+    generate_cards = getattr(config, "GENERATE_CARDS", False)
+    card_rows: list[dict] = []
+    card_items: list[tuple[str, Indexed, bytes]] = []
+    card_back: Indexed | None = None
+    card_stats = {"n_cards": 0, "card_bytes": 0, "has_back": False}
+
+    if generate_cards:
+        card_rows, card_items, card_back, card_stats = build_cards()
+
     if args.report:
         print("--report given, nothing written.")
         return
@@ -512,7 +669,7 @@ def main() -> None:
             old.unlink()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    emit_header(rows, stats, state_stats)
+    emit_header(rows, stats, state_stats, card_stats)
     (OUT_DIR / "map_n_flag.cpp").write_text(IMPL_SOURCE, encoding="utf-8")
 
     flag_syms = dict(emit_data_files("flag", flag_items))
@@ -525,6 +682,11 @@ def main() -> None:
         emit_state_tables(state_rows, sflag_syms, smap_syms)
     else:
         emit_empty_state_table()
+
+    if generate_cards and card_items:
+        emit_cards(card_rows, card_items, card_back)
+    else:
+        emit_empty_card_table()
 
     print(f"wrote {OUT_DIR}")
     for p in sorted(OUT_DIR.iterdir()):
