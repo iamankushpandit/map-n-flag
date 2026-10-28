@@ -10,6 +10,7 @@ previews show exactly what the device will draw. Writes:
     docs/previews/maps/<CODE>.png          country outline centred
     docs/previews/state_flags/<CODE>.png   US state flag on white, 1px border
     docs/previews/state_maps/<CODE>.png    US state outline centred
+    docs/previews/signs/<LETTER>.png       ASL hand centred
 
 and rewrites the tables in README.md between the GALLERY markers.
 """
@@ -35,6 +36,9 @@ START = "<!-- GALLERY:START -->"
 END = "<!-- GALLERY:END -->"
 STATE_START = "<!-- STATE_GALLERY:START -->"
 STATE_END = "<!-- STATE_GALLERY:END -->"
+SIGN_START = "<!-- SIGN_GALLERY:START -->"
+SIGN_END = "<!-- SIGN_GALLERY:END -->"
+SIGN_COLS = 7
 
 FLAG_BG = (255, 255, 255)
 MAP_BG = (255, 255, 255)
@@ -117,6 +121,37 @@ def export_set(
     return rows, n_written, total_bytes
 
 
+def export_signs(images: dict) -> tuple[list[str], int]:
+    """Export one PNG per hand; return the gallery markdown and the PNG bytes."""
+    letters = sorted(sym.removeprefix("mnf_asl_").upper()
+                     for sym in images if sym.startswith("mnf_asl_"))
+    out_dir = PREVIEW_DIR / "signs"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cells, total = [], 0
+    for letter in letters:
+        rec = images[f"mnf_asl_{letter.lower()}"]
+        im = composite_on(decode_i4(rec["w"], rec["h"], rec["data"]), MAP_BG)
+        p = out_dir / f"{letter}.png"
+        framed(im, config.SIGN_W, config.SIGN_H, MAP_BG).save(p, optimize=True)
+        total += p.stat().st_size
+        cells.append(f'<img src="docs/previews/signs/{letter}.png" '
+                     f'width="{config.SIGN_W}" alt="ASL {letter}"><br>**{letter}**')
+
+    md = [
+        f"All {len(letters)} hands of the ASL manual alphabet. Each is cropped to "
+        f"its own drawing and fits a {config.SIGN_W}x{config.SIGN_H} box; J and Z "
+        f"are motions and their drawings carry the motion as an arrow.",
+        "",
+        "| " + " | ".join([" "] * SIGN_COLS) + " |",
+        "|" + ":-:|" * SIGN_COLS,
+    ]
+    for i in range(0, len(cells), SIGN_COLS):
+        row = cells[i:i + SIGN_COLS]
+        row += [" "] * (SIGN_COLS - len(row))
+        md.append("| " + " | ".join(row) + " |")
+    return md, total
+
+
 def main() -> None:
     images = parse_generated()
     print(f"parsed {len(images)} images")
@@ -151,7 +186,9 @@ def main() -> None:
         "docs/previews/state_flags", "docs/previews/state_maps",
     )
     print(f"states:    {n2} PNGs, {b2/1024:.0f} KiB")
-    print(f"total:     {n1+n2} PNGs, {(b1+b2)/1024:.0f} KiB")
+    sign_md, b3 = export_signs(images)
+    print(f"signs:     {b3/1024:.0f} KiB")
+    print(f"total:     {(b1+b2+b3)/1024:.0f} KiB")
 
     # --- build country gallery markdown -----------------------------------
     country_md = [
@@ -189,6 +226,11 @@ def main() -> None:
         head, rest = text.split(STATE_START, 1)
         _, tail = rest.split(STATE_END, 1)
         text = f"{head}{STATE_START}\n\n" + "\n".join(state_md_lines) + f"\n\n{STATE_END}{tail}"
+
+    if SIGN_START in text and SIGN_END in text:
+        head, rest = text.split(SIGN_START, 1)
+        _, tail = rest.split(SIGN_END, 1)
+        text = f"{head}{SIGN_START}\n\n" + "\n".join(sign_md) + f"\n\n{SIGN_END}{tail}"
 
     README.write_text(text, encoding="utf-8")
     print(f"updated {README} gallery ({len(country_rows)} countries, {len(state_rows)} states)")

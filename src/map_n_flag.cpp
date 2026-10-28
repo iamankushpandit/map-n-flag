@@ -11,6 +11,9 @@ extern const uint16_t mnf_country_count;
 extern const mnf_state_t mnf_state_table[];
 extern const uint16_t mnf_state_count_val;
 
+extern const mnf_sign_t mnf_sign_table[];
+extern const uint16_t mnf_sign_count_val;
+
 /* ------------------------------------------------------------------------
  * Country lookup
  * ---------------------------------------------------------------------- */
@@ -132,6 +135,35 @@ bool mnf_state_has_both(const char *st)
 {
     const mnf_state_t *s = mnf_state_find(st);
     return s != NULL && s->flag != NULL && s->map != NULL;
+}
+
+/* ------------------------------------------------------------------------
+ * ASL fingerspelling
+ * ---------------------------------------------------------------------- */
+
+size_t mnf_sign_count(void)
+{
+    return (size_t)mnf_sign_count_val;
+}
+
+const mnf_sign_t *mnf_sign_at(size_t index)
+{
+    if (index >= (size_t)mnf_sign_count_val) return NULL;
+    return &mnf_sign_table[index];
+}
+
+const mnf_sign_t *mnf_sign_find(char letter)
+{
+    /* The table is A to Z with no gaps, so a letter is its own index. */
+    const int up = toupper((unsigned char)letter);
+    if (up < 'A' || up > 'Z') return NULL;
+    return mnf_sign_at((size_t)(up - 'A'));
+}
+
+const mnf_img_t *mnf_sign(char letter)
+{
+    const mnf_sign_t *s = mnf_sign_find(letter);
+    return s ? s->img : NULL;
 }
 
 /* ------------------------------------------------------------------------
