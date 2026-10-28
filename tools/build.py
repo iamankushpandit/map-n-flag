@@ -26,12 +26,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 sys.path.insert(0, str(Path(__file__).parent))
 import config  # noqa: E402
 from cards_data import deck as card_deck  # noqa: E402
 from countries_data import COUNTRIES  # noqa: E402
+from signs_data import SIGNS  # noqa: E402
 from states_data import US_STATES  # noqa: E402
 from templates import HEADER_TEMPLATE, IMPL_SOURCE  # noqa: E402
 
@@ -40,6 +41,8 @@ FLAG_SVG_DIR = ROOT / "vendor" / "flag-icons" / "flags" / "4x3"
 STATE_FLAG_SVG_DIR = ROOT / "vendor" / "region-flags" / "svg"
 STATE_MAP_DIR = ROOT / "build" / "state_maps"
 CARD_DIR = ROOT / "build" / "cards"
+SIGN_SVG_DIR = ROOT / "vendor" / "asl-wpclipart"
+SIGN_RAW_DIR = ROOT / "build" / "signs_raw"
 BUILD_DIR = ROOT / "build"
 OUT_DIR = ROOT / "src"
 
@@ -182,6 +185,34 @@ def load_card(code: str, card_dir: Path) -> Indexed | None:
     return quantize_rgba(np.asarray(im, dtype=np.uint8))
 
 
+def load_sign(letter: str, raw_dir: Path) -> Indexed | None:
+    """Crop a rendered hand to its ink, thicken it, and fit it in the box.
+
+    The rasteriser renders about eight times larger than the output so that
+    the thickening below is a fraction of an output pixel rather than a whole
+    one -- a MaxFilter at output size could only ever add a full pixel, which
+    turns the fist letters into blots.
+    """
+    p = raw_dir / f"{letter}.png"
+    if not p.exists():
+        return None
+    im = Image.open(p).convert("L")
+    box = im.point(lambda v: 255 if v > 8 else 0).getbbox()
+    if box is None:
+        return None
+    im = im.crop(box)
+
+    fit = min(config.SIGN_W / im.width, config.SIGN_H / im.height)
+    grow = round(config.SIGN_THICKEN / fit)          # render pixels
+    if grow > 0:
+        im = im.filter(ImageFilter.MaxFilter(grow * 2 + 1))
+
+    w = max(1, round(im.width * fit))
+    h = max(1, round(im.height * fit))
+    im = im.resize((w, h), Image.LANCZOS)
+    return alpha_ramp_indexed(np.asarray(im, dtype=np.uint8), config.SIGN_INK)
+
+
 def load_state_map(code: str, state_map_dir: Path) -> Indexed | None:
     p = state_map_dir / f"{code}.png"
     if not p.exists():
@@ -210,6 +241,7 @@ ATTRIBUTION = """/*
  * State flag artwork:    fonttools/region-flags     -- public domain (Wikipedia).
  * State map artwork:     Natural Earth              -- public domain.
  * Playing cards:         drawn by tools/render_cards.py -- no upstream art.
+ * ASL hand artwork:      WPClipart via Wikimedia Commons -- public domain (CC0).
  */
 """
 
@@ -327,6 +359,35 @@ def emit_empty_card_table() -> None:
         f.write("extern const mnf_img_t *const mnf_card_back_img = NULL;\n")
 
 
+def emit_sign_table(sign_syms: dict) -> None:
+    path = OUT_DIR / "mnf_sign_table.cpp"
+    with path.open("w", encoding="utf-8") as f:
+        f.write(ATTRIBUTION)
+        f.write('\n#include "map_n_flag.h"\n\n')
+
+        for letter, sym in sorted(sign_syms.items()):
+            f.write(f"extern const mnf_img_t {sym};\n")
+
+        f.write("\n/* A to Z, so a letter's index is its offset from 'A'. */\n")
+        f.write("extern const mnf_sign_t mnf_sign_table[] = {\n")
+        for letter, moves in SIGNS:
+            img = f"&{sign_syms[letter]}" if letter in sign_syms else "NULL"
+            f.write(f"    {{ '{letter}', {1 if moves else 0}, {img} }},\n")
+        f.write("};\n\n")
+        f.write(f"extern const uint16_t mnf_sign_count_val = {len(SIGNS)};\n")
+
+
+def emit_empty_sign_table() -> None:
+    """Emit a stub sign table when GENERATE_SIGNS is off."""
+    path = OUT_DIR / "mnf_sign_table.cpp"
+    with path.open("w", encoding="utf-8") as f:
+        f.write(ATTRIBUTION)
+        f.write('\n#include "map_n_flag.h"\n\n')
+        # Spelled out, like the card stub, so -Wextra stays quiet.
+        f.write("extern const mnf_sign_t mnf_sign_table[] = { { 0, 0, NULL } };\n")
+        f.write("extern const uint16_t mnf_sign_count_val = 0;\n")
+
+
 def emit_empty_state_table() -> None:
     """Emit a stub state table when GENERATE_STATES is off."""
     path = OUT_DIR / "mnf_state_table.cpp"
@@ -338,7 +399,7 @@ def emit_empty_state_table() -> None:
 
 
 def emit_header(rows: list[dict], stats: dict, state_stats: dict,
-                card_stats: dict) -> None:
+                card_stats: dict, sign_stats: dict) -> None:
     """Render the public header.
 
     Token replacement rather than str.format(), because the template is full of
@@ -369,6 +430,11 @@ def emit_header(rows: list[dict], stats: dict, state_stats: dict,
         "@@N_CARDS@@": str(card_stats["n_cards"]),
         "@@CARD_KIB@@": f"{card_stats['card_bytes'] / 1024:.1f}",
         "@@HAS_CARDS@@": "1" if card_stats["n_cards"] > 0 else "0",
+        "@@SIGN_W@@": str(config.SIGN_W),
+        "@@SIGN_H@@": str(config.SIGN_H),
+        "@@N_SIGNS@@": str(sign_stats["n_signs"]),
+        "@@SIGN_KIB@@": f"{sign_stats['sign_bytes'] / 1024:.1f}",
+        "@@HAS_SIGNS@@": "1" if sign_stats["n_signs"] > 0 else "0",
     }
     text = HEADER_TEMPLATE
     for k, v in subs.items():
@@ -465,6 +531,54 @@ def emit_cards(rows: list[dict], items: list, back: Indexed | None) -> None:
     emit_card_table(rows, syms, back_sym)
 
 
+def build_signs() -> tuple[list, dict]:
+    """Rasterise and convert the ASL hands. Returns (items, stats)."""
+    if not SIGN_SVG_DIR.is_dir():
+        sys.exit(f"Missing {SIGN_SVG_DIR}. Run: python tools/fetch_sources.py")
+    letters = [letter for letter, _ in SIGNS]
+    print(f"ASL hands: {len(letters)}, fit {config.SIGN_W}x{config.SIGN_H} I4")
+
+    BUILD_DIR.mkdir(exist_ok=True)
+    letters_json = BUILD_DIR / "sign_letters.json"
+    letters_json.write_text(json.dumps(letters), encoding="utf-8")
+    proc = subprocess.run(
+        ["node", str(ROOT / "tools" / "rasterize_signs.js"),
+         str(SIGN_SVG_DIR), str(SIGN_RAW_DIR), str(config.SIGN_H * 8),
+         str(letters_json)],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    if proc.returncode != 0:
+        sys.exit(f"sign rasteriser failed:\n{proc.stderr}")
+    info = json.loads(proc.stdout.strip().splitlines()[-1])
+    if info["missing"]:
+        sys.exit(f"missing hand SVGs: {', '.join(info['missing'])} -- "
+                 "run python tools/fetch_sources.py")
+
+    items = []
+    for letter in letters:
+        img = load_sign(letter, SIGN_RAW_DIR)
+        if img is not None:
+            items.append((letter, img, pack_i4(img)))
+
+    sign_bytes = sum(len(b) for _, _, b in items)
+    print()
+    print("=" * 62)
+    print("  ASL HANDS")
+    print(f"  Hands : {len(items):3d} images  {sign_bytes:8,d} B  "
+          f"{sign_bytes/1024:8.1f} KiB  ({sign_bytes/max(1,len(items)):.0f} B avg)")
+    print("=" * 62)
+    print()
+    return items, {"n_signs": len(items), "sign_bytes": sign_bytes}
+
+
+def emit_signs(items: list) -> None:
+    # The images are mnf_asl_a .. mnf_asl_z. Not mnf_sign_<letter>: the T
+    # would be mnf_sign_t, which is the name of the table's struct type.
+    for old in OUT_DIR.glob("mnf_asl_data_*.cpp"):
+        old.unlink()
+    emit_sign_table(dict(emit_data_files("asl", items)))
+
+
 def rasterise_state_maps() -> None:
     """Run render_state_maps.py to generate state outline PNGs."""
     script = ROOT / "tools" / "render_state_maps.py"
@@ -490,6 +604,10 @@ def main() -> None:
                     help="regenerate just the playing cards; leaves the flag and "
                          "map sources, the header and map_n_flag.cpp untouched. "
                          "Needs no vendor/ artwork, since cards are drawn here.")
+    ap.add_argument("--signs-only", action="store_true",
+                    help="regenerate just the ASL hands and their table; leaves "
+                         "the flag and map sources, the header and "
+                         "map_n_flag.cpp untouched. Needs only vendor/asl-wpclipart.")
     args = ap.parse_args()
 
     if args.scope:
@@ -506,6 +624,20 @@ def main() -> None:
         emit_cards(rows, items, back)
         print(f"wrote card sources to {OUT_DIR}")
         print("NOTE: map_n_flag.h still carries the card counts from the last "
+              "full build; run `python tools/build.py` to refresh them.")
+        return
+
+    if args.signs_only:
+        if not getattr(config, "GENERATE_SIGNS", False):
+            sys.exit("GENERATE_SIGNS is off in tools/config.py, nothing to do.")
+        items, _stats = build_signs()
+        if args.report:
+            print("--report given, nothing written.")
+            return
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+        emit_signs(items)
+        print(f"wrote sign sources to {OUT_DIR}")
+        print("NOTE: map_n_flag.h still carries the sign counts from the last "
               "full build; run `python tools/build.py` to refresh them.")
         return
 
@@ -657,6 +789,13 @@ def main() -> None:
     if generate_cards:
         card_rows, card_items, card_back, card_stats = build_cards()
 
+    # --- ASL hands -------------------------------------------------------
+    generate_signs = getattr(config, "GENERATE_SIGNS", False)
+    sign_items: list[tuple[str, Indexed, bytes]] = []
+    sign_stats = {"n_signs": 0, "sign_bytes": 0}
+    if generate_signs:
+        sign_items, sign_stats = build_signs()
+
     if args.report:
         print("--report given, nothing written.")
         return
@@ -669,7 +808,7 @@ def main() -> None:
             old.unlink()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    emit_header(rows, stats, state_stats, card_stats)
+    emit_header(rows, stats, state_stats, card_stats, sign_stats)
     (OUT_DIR / "map_n_flag.cpp").write_text(IMPL_SOURCE, encoding="utf-8")
 
     flag_syms = dict(emit_data_files("flag", flag_items))
@@ -687,6 +826,11 @@ def main() -> None:
         emit_cards(card_rows, card_items, card_back)
     else:
         emit_empty_card_table()
+
+    if generate_signs and sign_items:
+        emit_signs(sign_items)
+    else:
+        emit_empty_sign_table()
 
     print(f"wrote {OUT_DIR}")
     for p in sorted(OUT_DIR.iterdir()):

@@ -1,8 +1,8 @@
 # map-n-flag
 
 Country flags and map silhouettes for **195 countries**, **51 US states**
-(+ DC) and a full **52-card deck**, baked into flash as plain C++ arrays for the
-ESP32. No runtime SVG parsing, no SD card, no external asset loading —
+(+ DC), a full **52-card deck** and the **26 hands of the ASL fingerspelling
+alphabet**, baked into flash as plain C++ arrays for the ESP32. No runtime SVG parsing, no SD card, no external asset loading —
 everything is `const` data in `.rodata`.
 
 Built for a 320×240 ESP32 "Cheap Yellow Display" (ILI9341, 4 MB flash, no PSRAM),
@@ -15,6 +15,7 @@ but there is nothing board-specific in the library.
 - **280 KiB** more for 51 US state flags and outlines (opt-in, both commercially safe).
 - **85 KiB** more for the 52-card deck and its back (opt-in, drawn here, so
   there is nothing to attribute).
+- **52 KiB** for the ASL alphabet, A to Z (opt-in, public domain).
 
 ```cpp
 #include "map_n_flag.h"
@@ -32,6 +33,9 @@ const char      *sn = mnf_state_name("CA");   // "California"
 const mnf_img_t *card = mnf_card("AS");       // ace of spades
 const mnf_img_t *back = mnf_card_back();      // the card back
 const char      *cn   = mnf_card_name("TD");  // "Ten of Diamonds"
+
+// ASL fingerspelling -- one hand per letter, line art, alpha ramp
+const mnf_img_t *hand = mnf_sign('A');
 ```
 
 ---
@@ -203,6 +207,24 @@ There is no court-card art at this size: jacks, queens and kings show a large
 rank letter over their suit, which stays readable where a miniature portrait
 would not.
 
+### ASL fingerspelling API
+
+One hand per letter of the American Sign Language manual alphabet, A to Z.
+Each is black line art on a transparent page, stored as an alpha ramp like the
+state outlines, so `mnf_row_rgb565_tint()` draws it in any ink on any
+background. All functions return `NULL`/`0` if `GENERATE_SIGNS` was off.
+
+```cpp
+size_t               mnf_sign_count(void);              // 26
+const mnf_sign_t    *mnf_sign_at(size_t index);         // 0 is 'A'
+const mnf_sign_t    *mnf_sign_find(char letter);        // 'A' or 'a'
+const mnf_img_t     *mnf_sign(char letter);             // NULL if not a letter
+```
+
+`mnf_sign_t` carries the letter, the image and a `moves` flag. J and Z are
+traced in the air rather than held; their drawings show the motion as an
+arrow, and `moves` lets a caller say so in words too.
+
 ### Drawing with TFT_eSPI (no LVGL)
 
 Decode one row at a time straight from flash — no framebuffer, ~192 bytes of
@@ -298,6 +320,12 @@ Measured with `xtensa-esp32-elf-size` on compiled objects, not estimated.
 | Lookup table + descriptors | — | 2.2 KiB |
 | **Card total** | **53** | **85.0 KiB** |
 
+### ASL hands (opt-in)
+
+| | Count | Flash |
+|---|---|---|
+| Hands, fit inside 64×84 | 26 | 52.0 KiB |
+
 | | Flash |
 |---|---|
 | Code (`.text`) | ~1.5 KiB |
@@ -344,6 +372,8 @@ Everything adjustable lives in [`tools/config.py`](tools/config.py):
 | `GENERATE_CARDS` | `True` | Include the playing-card deck |
 | `CARD_W` / `CARD_H` | `48` / `64` | Card resolution |
 | `CARD_JOKERS` | `False` | Add the two jokers, `"ZR"` and `"ZB"` |
+| `GENERATE_SIGNS` | `True` | Include the ASL fingerspelling hands |
+| `SIGN_W` / `SIGN_H` | `64` / `84` | Box each hand is fitted inside |
 
 US states add ~280 KiB (122.7 KiB flags + 157.9 KiB maps). Set
 `GENERATE_STATES = False` to exclude them entirely. Playing cards add 85.0 KiB;
@@ -356,6 +386,14 @@ cloning the flag repos — useful when you are only retuning `CARD_W`/`CARD_H`:
 python tools/render_cards.py --sheet build/cards.png   # draw and eyeball them
 python tools/build.py --cards-only                     # regenerate just the deck
 python tools/verify.py --cards --sheet build/deck.png  # decode the result back
+```
+
+The hands need nothing from `vendor/` except the 26 hand SVGs, which
+`fetch_sources.py` downloads from Wikimedia Commons:
+
+```bash
+python tools/build.py --signs-only
+python tools/verify.py --signs    # every hand at 1x and 2x, light and dark
 ```
 
 ---
@@ -415,11 +453,13 @@ The **artwork** comes from the following upstream projects:
 | US state flags | [fonttools/region-flags](https://github.com/fonttools/region-flags) | **Public domain** | ✅ Yes |
 | US state outlines | [Natural Earth](https://www.naturalearthdata.com/) | **Public domain** | ✅ Yes |
 | Playing cards | drawn by `tools/render_cards.py` | **MIT** (this repo) | ✅ Yes |
+| ASL hands | [WPClipart via Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sign_language_A.svg) | **Public domain (CC0)** | ✅ Yes |
 
 All artwork used in this library is commercially safe. Country flags are MIT
 licensed, US state flags are public domain, US state outlines come from Natural
-Earth (public domain), and the playing cards are drawn from vector primitives in
-this repo, so they carry no upstream licence at all.
+Earth (public domain), the playing cards are drawn from vector primitives in
+this repo, so they carry no upstream licence at all, and the ASL hands are
+WPClipart's public-domain set. See `NOTICE.md` for details.
 
 ---
 
@@ -708,6 +748,21 @@ Back: <img src="docs/previews/cards/BK.png" width="48" alt="Card back">
 
 <!-- CARD_GALLERY:END -->
 
+### ASL fingerspelling
+
+<!-- SIGN_GALLERY:START -->
+
+All 26 hands of the ASL manual alphabet. Each is cropped to its own drawing and fits a 64x84 box; J and Z are motions and their drawings carry the motion as an arrow.
+
+|   |   |   |   |   |   |   |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| <img src="docs/previews/signs/A.png" width="64" alt="ASL A"><br>**A** | <img src="docs/previews/signs/B.png" width="64" alt="ASL B"><br>**B** | <img src="docs/previews/signs/C.png" width="64" alt="ASL C"><br>**C** | <img src="docs/previews/signs/D.png" width="64" alt="ASL D"><br>**D** | <img src="docs/previews/signs/E.png" width="64" alt="ASL E"><br>**E** | <img src="docs/previews/signs/F.png" width="64" alt="ASL F"><br>**F** | <img src="docs/previews/signs/G.png" width="64" alt="ASL G"><br>**G** |
+| <img src="docs/previews/signs/H.png" width="64" alt="ASL H"><br>**H** | <img src="docs/previews/signs/I.png" width="64" alt="ASL I"><br>**I** | <img src="docs/previews/signs/J.png" width="64" alt="ASL J"><br>**J** | <img src="docs/previews/signs/K.png" width="64" alt="ASL K"><br>**K** | <img src="docs/previews/signs/L.png" width="64" alt="ASL L"><br>**L** | <img src="docs/previews/signs/M.png" width="64" alt="ASL M"><br>**M** | <img src="docs/previews/signs/N.png" width="64" alt="ASL N"><br>**N** |
+| <img src="docs/previews/signs/O.png" width="64" alt="ASL O"><br>**O** | <img src="docs/previews/signs/P.png" width="64" alt="ASL P"><br>**P** | <img src="docs/previews/signs/Q.png" width="64" alt="ASL Q"><br>**Q** | <img src="docs/previews/signs/R.png" width="64" alt="ASL R"><br>**R** | <img src="docs/previews/signs/S.png" width="64" alt="ASL S"><br>**S** | <img src="docs/previews/signs/T.png" width="64" alt="ASL T"><br>**T** | <img src="docs/previews/signs/U.png" width="64" alt="ASL U"><br>**U** |
+| <img src="docs/previews/signs/V.png" width="64" alt="ASL V"><br>**V** | <img src="docs/previews/signs/W.png" width="64" alt="ASL W"><br>**W** | <img src="docs/previews/signs/X.png" width="64" alt="ASL X"><br>**X** | <img src="docs/previews/signs/Y.png" width="64" alt="ASL Y"><br>**Y** | <img src="docs/previews/signs/Z.png" width="64" alt="ASL Z"><br>**Z** |   |   |
+
+<!-- SIGN_GALLERY:END -->
+
 ---
 
 ## Credits
@@ -717,3 +772,5 @@ Back: <img src="docs/previews/cards/BK.png" width="48" alt="Card back">
   public domain (Wikipedia).
 - US state outlines — [Natural Earth](https://www.naturalearthdata.com/), public domain.
 - Playing cards — drawn by [`tools/render_cards.py`](tools/render_cards.py); no upstream artwork.
+- ASL hands — WPClipart's "American ABCs" set, via
+  [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sign_language_A.svg), public domain (CC0).

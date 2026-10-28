@@ -1,7 +1,7 @@
 """
 Round-trip verification for the generated library.
 
-    python tools/verify.py [--sheet out.png] [--cards] [CODE ...]
+    python tools/verify.py [--sheet out.png] [--cards | --signs] [CODE ...]
 
 Parses the emitted .cpp files as text, decodes the byte arrays using LVGL's
 own I4 rules, and renders the result. This deliberately re-reads the generated
@@ -110,6 +110,46 @@ def write_sheet(tiles: list[tuple[str, Image.Image]], out: Path,
     print(f"wrote {out}")
 
 
+def write_sign_sheet(images: dict, out: Path, zoom: int) -> None:
+    """Every hand at native size and zoomed, on paper and on a dark page.
+
+    The dark row draws the alpha in a light ink, the way a caller recolours a
+    hand with mnf_row_rgb565_tint(); a line that thins out to nothing at
+    native size shows up here and nowhere else.
+    """
+    syms = sorted(s for s in images if s.startswith("mnf_asl_"))
+    if not syms:
+        sys.exit("no hands in the generated sources; is GENERATE_SIGNS off?")
+    pad = 8
+    cell_w = max(images[s]["w"] for s in syms) * (1 + zoom) + pad
+    cell_h = max(images[s]["h"] for s in syms) * zoom + 14
+    cols = 7
+    rows = (len(syms) + cols - 1) // cols
+    sheet = Image.new("RGB", (cols * (cell_w + pad) + pad,
+                              2 * rows * (cell_h + pad) + pad), (60, 60, 66))
+    dr = ImageDraw.Draw(sheet)
+    for band, (page, ink) in enumerate((((250, 250, 246), None),
+                                        ((24, 26, 34), (235, 235, 240)))):
+        for i, sym in enumerate(syms):
+            rec = images[sym]
+            rgba = decode_i4(rec["w"], rec["h"], rec["data"])
+            if ink is not None:
+                rgba = rgba.copy()
+                rgba[:, :, :3] = ink
+            img = composite(rgba, page)
+            x = pad + (i % cols) * (cell_w + pad)
+            y = pad + (band * rows + i // cols) * (cell_h + pad)
+            dr.rectangle([x, y, x + cell_w - 1, y + cell_h - 1], fill=page)
+            sheet.paste(img, (x + 2, y + 2))
+            big = img.resize((rec["w"] * zoom, rec["h"] * zoom), Image.NEAREST)
+            sheet.paste(big, (x + rec["w"] + 6, y + 2))
+            dr.text((x + 4, y + cell_h - 13), sym.removeprefix("mnf_asl_").upper(),
+                    fill=(200, 40, 40))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(out)
+    print(f"wrote {out}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("codes", nargs="*", help="ISO codes to put on the sheet")
@@ -117,6 +157,9 @@ def main() -> None:
     ap.add_argument("--zoom", type=int, default=2)
     ap.add_argument("--cards", action="store_true",
                     help="put the generated deck on the sheet instead of flags")
+    ap.add_argument("--signs", action="store_true",
+                    help="put the ASL hands on the sheet instead of flags, at 1x "
+                         "and --zoom, on a light and a dark page")
     args = ap.parse_args()
 
     images = parse_generated()
@@ -140,6 +183,10 @@ def main() -> None:
     print(f"all {len(images)} images decode cleanly, {total:,} bytes total")
 
     Z = args.zoom
+
+    if args.signs:
+        write_sign_sheet(images, Path(args.sheet), Z)
+        return
 
     if args.cards:
         card_syms = sorted(s for s in images if s.startswith("mnf_card_"))
