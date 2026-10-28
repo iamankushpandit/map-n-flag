@@ -81,6 +81,36 @@ CARD_H = 64
 CARD_JOKERS = False
 
 # ---------------------------------------------------------------------------
+# ASL fingerspelling hands
+# ---------------------------------------------------------------------------
+# Set True to generate the 26 hands of the American Sign Language manual
+# alphabet. The artwork is WPClipart's public-domain (CC0) set via Wikimedia
+# Commons -- see tools/signs_data.py -- so, like the state assets, there is no
+# commercial restriction.
+#
+# Uses a parallel API: mnf_sign('A'), mnf_sign_at(0), etc.
+GENERATE_SIGNS = True
+
+# Each hand is cropped to its own drawing and scaled to fit inside this box,
+# aspect preserved. The source sheets are about 3:4 portrait. At 64x84 a hand
+# is ~2 KB and the alphabet ~52 KiB. Much smaller than about 48px tall and
+# the fist letters (A, E, M, N, S, T) -- which differ only in where the thumb
+# sits -- stop being distinguishable.
+SIGN_W = 64
+SIGN_H = 84
+
+# Ink colour. The palette is an alpha ramp of this single colour, exactly like
+# the state outlines, so a caller can recolour a hand at draw time with
+# mnf_row_rgb565_tint() and the transparent page shows whatever is behind it.
+SIGN_INK = (0x10, 0x10, 0x18)
+
+# Line thickening applied at render resolution, as a fraction of one OUTPUT
+# pixel. The source strokes come out about 1.3 output pixels wide at 64x84,
+# which antialiases into a grey that breaks up where two lines meet; half a
+# pixel more keeps every outline continuous. 0 disables it.
+SIGN_THICKEN = 0.5
+
+# ---------------------------------------------------------------------------
 # Output
 # ---------------------------------------------------------------------------
 # Number of .cpp files to spread the byte arrays across. More files = smaller

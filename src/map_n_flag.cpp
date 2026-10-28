@@ -15,6 +15,9 @@ extern const mnf_card_t mnf_card_table[];
 extern const uint16_t mnf_card_count_val;
 extern const mnf_img_t *const mnf_card_back_img;
 
+extern const mnf_sign_t mnf_sign_table[];
+extern const uint16_t mnf_sign_count_val;
+
 /* ------------------------------------------------------------------------
  * Country lookup
  * ---------------------------------------------------------------------- */
@@ -212,6 +215,35 @@ bool mnf_card_is_red(const mnf_card_t *card)
     if (card->suit == MNF_SUIT_HEARTS || card->suit == MNF_SUIT_DIAMONDS) return true;
     /* Jokers carry no suit; the red one is "ZR". */
     return card->suit == MNF_SUIT_NONE && card->code != NULL && card->code[1] == 'R';
+}
+
+/* ------------------------------------------------------------------------
+ * ASL fingerspelling
+ * ---------------------------------------------------------------------- */
+
+size_t mnf_sign_count(void)
+{
+    return (size_t)mnf_sign_count_val;
+}
+
+const mnf_sign_t *mnf_sign_at(size_t index)
+{
+    if (index >= (size_t)mnf_sign_count_val) return NULL;
+    return &mnf_sign_table[index];
+}
+
+const mnf_sign_t *mnf_sign_find(char letter)
+{
+    /* The table is A to Z with no gaps, so a letter is its own index. */
+    const int up = toupper((unsigned char)letter);
+    if (up < 'A' || up > 'Z') return NULL;
+    return mnf_sign_at((size_t)(up - 'A'));
+}
+
+const mnf_img_t *mnf_sign(char letter)
+{
+    const mnf_sign_t *s = mnf_sign_find(letter);
+    return s ? s->img : NULL;
 }
 
 /* ------------------------------------------------------------------------

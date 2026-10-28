@@ -55,6 +55,23 @@ embedded or traced. There is nothing to attribute.
 
 ---
 
+## ASL fingerspelling hands — WPClipart
+
+- Source: WPClipart's "American ABCs" sign language set, edited by Paul
+  Sherman (2013), as published on Wikimedia Commons:
+  <https://commons.wikimedia.org/wiki/File:Sign_language_A.svg> through
+  `Sign_language_Z.svg`
+- License: ✅ **Public domain.** Each file is marked "released into the public
+  domain by its author" on Commons, and each SVG carries a CC0 1.0 dedication
+  in its own metadata.
+- Status: ✅ **Unrestricted.** Commercial use is fine.
+
+The hand SVGs were rasterised, cropped to their drawing, thickened by half an
+output pixel so the line art survives the downscale, fitted inside 64×84 and
+encoded as 4-bit alpha-ramp images. No other modification.
+
+---
+
 ## Build-time tooling
 
 These run on the development machine only and are **not** compiled into the
